@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>恐竜レジ</title>
+
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#111111">
+
+  <style>
+    :root{ --barH: 170px; }
+    body{ margin:0; font-family:-apple-system,system-ui,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; background:#fafafa; }
+    h1{ margin:0; padding:12px 14px 8px; font-size:18px; }
+    .app{ height:100svh; display:flex; flex-direction:column; }
+    .scroll{ flex:1; overflow:auto; padding:0 12px calc(var(--barH) + 16px); }
+    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px; }
+    .card{ background:#fff; border:1px solid #ddd; border-radius:12px; padding:10px; }
+    .name{ font-size:14px; font-weight:900; text-align:center; margin-bottom:8px; }
+    button{ width:100%; border:0; border-radius:12px; font-weight:900; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+    .sale{ background:#1e88e5; color:#fff; font-size:20px; padding:14px 10px; }
+    .refund{ background:#e53935; color:#fff; font-size:16px; padding:10px; margin-top:8px; }
+    .summary{ margin-top:14px; background:#111; color:#fff; border-radius:14px; padding:14px; }
+    .total{ font-size:28px; font-weight:900; margin-top:4px; }
+    .small{ font-size:13px; opacity:.9; margin-top:6px; }
+    .row{ display:flex; gap:10px; margin-top:10px; }
+    .ghost{ background:#f2f2f2; color:#111; padding:10px; border-radius:12px; font-size:14px; font-weight:900; }
+    .bar{
+      position:fixed; left:0; right:0; bottom:0; z-index:99999;
+      background:#fff; border-top:1px solid #ddd;
+      box-shadow:0 -6px 16px rgba(0,0,0,.15);
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+      height:var(--barH); box-sizing:border-box;
+    }
+    .barTop{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .barTitle{ font-size:14px; font-weight:900; }
+    .barTotal{ font-size:18px; font-weight:900; }
+    .list{ max-height:70px; overflow:auto; border-top:1px dashed #ddd; padding-top:6px; font-size:13px; }
+    .lineItem{ display:flex; justify-content:space-between; padding:4px 0; }
+    .barBtns{ display:flex; gap:10px; margin-top:8px; }
+    .confirm{ flex:1; background:#2e7d32; color:#fff; font-size:18px; padding:14px; border-radius:14px; }
+    .clear{ width:34%; background:#616161; color:#fff; font-size:15px; padding:14px; border-radius:14px; }
+    .hint{ font-size:12px; color:#666; margin-top:6px; }
+    a.back{ display:inline-block; margin:10px 12px 0; color:#1e88e5; text-decoration:none; font-weight:900; }
+  </style>
+</head>
+<body>
+  <a class="back" href="./index.html">← メニューに戻る</a>
+  <div class="app">
+    <h1>恐竜レジ</h1>
+
+    <div class="scroll">
+      <div class="grid" id="items"></div>
+
+      <div class="summary">
+        <div>売上合計</div>
+        <div class="total" id="total">＊＊＊＊</div>
+        <div class="small" id="counts">（非表示）</div>
+
+        <div class="row">
+          <button class="ghost" id="unlock">売上を見る</button>
+          <button class="ghost" id="lock">隠す</button>
+        </div>
+
+        <div class="small" id="dayInfo"></div>
+      </div>
+    </div>
+
+    <div class="bar">
+      <div class="barTop">
+        <div class="barTitle">確定前（まとめ）</div>
+        <div class="barTotal" id="pTotal">—</div>
+      </div>
+
+      <div class="list" id="pList">未選択</div>
+
+      <div class="barBtns">
+        <button class="confirm" id="confirmBtn">確定</button>
+        <button class="clear" id="clearBtn">クリア</button>
+      </div>
+
+      <div class="hint">※オンライン時はその場で送信／オフライン時は保存→復帰で自動送信</div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // Service Worker（オフライン起動用）
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(console.log);
+  }
+
+  // ★あなたのGAS WebアプリURL
+  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwIATpKGHWwn33_nEH4asRggzpzQziSY70LjW8sdQ4I9AdUP54j3l_oBkhEqZHy-xQoXQ/exec";
+
+  const PASSWORD = "7777";
+  const DEVICE_KEY = "pos_device_name";
+
+function getDeviceName(){
+  let name = localStorage.getItem(DEVICE_KEY);
+  if(!name){
+    name = prompt("このレジの名前を入力してください\n例：受付A / 受付B / ふわふわ");
+    if(!name) name = "未設定";
+    localStorage.setItem(DEVICE_KEY, name);
+  }
+  return name;
+}
+
+let DEVICE_NAME = getDeviceName();
+
+
+  const PRODUCTS = [
+    { key:"entry", name:"入場料",           price:500 },
+    { key:"goods", name:"グッズ",           price:300 },
+    { key:"walk",  name:"お散歩ダイナソー", price:500 },
+  ];
+
+  // オフラインキュー
+  const QUEUE_KEY = "pos_entry_rows_queue_pwa_v1";
+  const loadQueue = () => { try{ return JSON.parse(localStorage.getItem(QUEUE_KEY)||"[]"); }catch(e){ return []; } };
+  const saveQueue = (q) => { try{ localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); }catch(e){} };
+  const enqueueRows = (rows) => { if(!rows?.length) return; const q=loadQueue(); q.push(...rows); saveQueue(q); };
+
+  function flushQueue(){
+    const q = loadQueue();
+    if(!q.length) return;
+    if(!navigator.onLine) return;
+
+    fetch(GAS_WEBAPP_URL,{
+      method:"POST",
+      headers:{ "Content-Type":"text/plain;charset=utf-8" },
+      body: JSON.stringify(q)
+    }).then(res=>{
+      if(res.ok) saveQueue([]);
+    }).catch(()=>{});
+  }
+  window.addEventListener("online", flushQueue);
+  window.addEventListener("load", flushQueue);
+
+  // UI要素
+  const itemsEl   = document.getElementById("items");
+  const pTotalEl  = document.getElementById("pTotal");
+  const pListEl   = document.getElementById("pList");
+  const confirmBtn= document.getElementById("confirmBtn");
+  const clearBtn  = document.getElementById("clearBtn");
+  const totalEl   = document.getElementById("total");
+  const countsEl  = document.getElementById("counts");
+  const dayInfoEl = document.getElementById("dayInfo");
+
+  let unlocked=false;
+  let pending={}; // {key:{name,price,qty}}
+  let total=0;
+  let counts=Object.fromEntries(PRODUCTS.map(p=>[p.key,0]));
+
+  // 商品カード生成
+  PRODUCTS.forEach(p=>{
+    const d=document.createElement("div");
+    d.className="card";
+    d.innerHTML=`
+      <div class="name">${p.name}</div>
+      <button class="sale" data-key="${p.key}" data-sign="1">¥${p.price}</button>
+      <button class="refund" data-key="${p.key}" data-sign="-1">返金</button>
+    `;
+    itemsEl.appendChild(d);
+  });
+
+  itemsEl.addEventListener("click", (e)=>{
+    const b=e.target.closest("button");
+    if(!b) return;
+    const key=b.dataset.key;
+    const sign=Number(b.dataset.sign||0);
+    const p=PRODUCTS.find(x=>x.key===key);
+    if(!p || !sign) return;
+
+    if(!pending[key]) pending[key]={name:p.name, price:p.price, qty:0};
+    pending[key].qty += sign;
+    if(pending[key].qty===0) delete pending[key];
+    renderPending();
+  });
+
+  confirmBtn.addEventListener("click", ()=>{
+    const keys=Object.keys(pending);
+    if(!keys.length) return;
+
+    const nowTs=Date.now();
+    const rows=[];
+    keys.forEach(k=>{
+      const it=pending[k];
+      const sub=it.price*it.qty; // 返金はマイナス
+      total += sub;
+      counts[k] += it.qty;
+      rows.push({ ts:nowTs, device:DEVICE_NAME, key:k, name:it.name, unitPrice:it.price, qty:it.qty, subtotal:sub });
+    });
+
+    // オンラインなら「今回分だけ」送信（失敗→キューへ）
+    if(navigator.onLine){
+      fetch(GAS_WEBAPP_URL,{
+        method:"POST",
+        headers:{ "Content-Type":"text/plain;charset=utf-8" },
+        body: JSON.stringify(rows)
+      }).then(res=>{
+        if(!res.ok) enqueueRows(rows);
+      }).catch(()=> enqueueRows(rows));
+    }else{
+      enqueueRows(rows);
+    }
+
+    pending={};
+    renderMain();
+    renderPending();
+  });
+
+  clearBtn.addEventListener("click", ()=>{
+    pending={};
+    renderPending();
+  });
+
+  document.getElementById("unlock").addEventListener("click", ()=>{
+    const pw=prompt("パスワード");
+    if(pw===PASSWORD){ unlocked=true; renderMain(); }
+    else if(pw!==null){ alert("パスワードが違います"); }
+  });
+  document.getElementById("lock").addEventListener("click", ()=>{
+    unlocked=false; renderMain();
+  });
+
+  function renderMain(){
+    if(unlocked){
+      totalEl.textContent = `¥${total.toLocaleString()}`;
+      countsEl.textContent = PRODUCTS.map(p=>`${p.name}:${counts[p.key]}回`).join(" / ");
+    }else{
+      totalEl.textContent="＊＊＊＊";
+      countsEl.textContent="（非表示）";
+    }
+    const ds=new Date().toLocaleDateString("ja-JP");
+    dayInfoEl.textContent=`日付:${ds} / 端末:${DEVICE_NAME} / ${navigator.onLine?"オンライン":"オフライン"}`;
+  }
+
+  function renderPending(){
+    const items=Object.values(pending);
+    if(!items.length){
+      pTotalEl.textContent="—";
+      pListEl.innerHTML="未選択";
+      return;
+    }
+    let q=0,y=0;
+    items.forEach(it=>{ q+=it.qty; y+=it.price*it.qty; });
+    pTotalEl.textContent=`${q}点 合計 ¥${y.toLocaleString()}`;
+
+    const shown=items.slice(0,3);
+    pListEl.innerHTML =
+      shown.map(it=>{
+        const sub=it.price*it.qty;
+        return `<div class="lineItem"><div>${it.name}×${it.qty}</div><div>¥${sub.toLocaleString()}</div></div>`;
+      }).join("") + (items.length>3 ? `<div class="lineItem">…他${items.length-3}件</div>` : "");
+  }
+
+  renderMain();
+  renderPending();
+})();
+</script>
+</body>
+</html>
