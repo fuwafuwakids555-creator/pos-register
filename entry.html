@@ -4,6 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>恐竜レジ</title>
+  <div id="deviceLabel" style="padding:0 14px 8px;font-weight:900;font-size:18px;color:#111;">
+  端末：—
+</div>
+
 
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#111111">
@@ -234,7 +238,11 @@ let DEVICE_NAME = getDeviceName();
     }
     const ds=new Date().toLocaleDateString("ja-JP");
     dayInfoEl.textContent=`日付:${ds} / 端末:${DEVICE_NAME} / ${navigator.onLine?"オンライン":"オフライン"}`;
+    const dEl = document.getElementById("deviceLabel");
+if(dEl) dEl.textContent = "端末： " + DEVICE_NAME;
   }
+  
+
 
   function renderPending(){
     const items=Object.values(pending);
@@ -261,3 +269,4 @@ let DEVICE_NAME = getDeviceName();
 </script>
 </body>
 </html>
+
