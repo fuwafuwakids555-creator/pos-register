@@ -49,6 +49,10 @@
 
   <div class="app">
     <h1>ふわふわレジ（時間制）</h1>
+    <div id="deviceLabel" style="padding:0 14px 8px;font-weight:900;font-size:18px;color:#111;">
+  端末：—
+</div>
+
 
     <div class="scroll">
       <div class="grid" id="items"></div>
@@ -214,6 +218,9 @@
     }
     const ds=new Date().toLocaleDateString("ja-JP");
     dayInfoEl.textContent=`日付:${ds} / 端末:${DEVICE_NAME} / ${navigator.onLine?"オンライン":"オフライン"}`;
+    const dEl = document.getElementById("deviceLabel");
+if(dEl) dEl.textContent = "端末： " + DEVICE_NAME;
+
   }
 
   function renderPending(){
@@ -240,3 +247,4 @@
 </script>
 </body>
 </html>
+
