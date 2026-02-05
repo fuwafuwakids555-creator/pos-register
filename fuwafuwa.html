@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>ふわふわレジ（時間制）</title>
+  <title>ふわふわレジ</title>
 
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#111111">
@@ -160,7 +160,7 @@
 <a class="back" href="./index.html">← メニューに戻る</a>
 
 <div class="app">
-  <h1>ふわふわレジ（時間制）</h1>
+  <h1>ふわふわレジ</h1>
   <div id="deviceLabel">端末：—</div>
 
   <div class="scroll">
@@ -245,7 +245,7 @@
 
   // ===== 設定 =====
   const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwIATpKGHWwn33_nEH4asRggzpzQziSY70LjW8sdQ4I9AdUP54j3l_oBkhEqZHy-xQoXQ/exec";
-  const ADMIN_PASSWORD = "7777";
+  const ADMIN_PASSWORD = "4181";
   const PASSWORD = "7777";
 
   // 端末名（共通）
@@ -268,7 +268,7 @@
   function getDeviceName(){
     let name = localStorage.getItem(DEVICE_KEY);
     if(!name){
-      name = prompt("このレジの名前を入力してください\n例：受付A / 受付B / ふわふわ");
+      name = prompt("このレジの名前を入力してください\n例：ふわふわ　田中 /ふわふわ+責任者名");
       if(!name) name = "未設定";
       localStorage.setItem(DEVICE_KEY, name);
     }
