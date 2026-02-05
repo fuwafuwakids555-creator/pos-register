@@ -3,124 +3,303 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>恐竜レジ</title>
-  <div id="deviceLabel" style="padding:0 14px 8px;font-weight:900;font-size:18px;color:#111;">
-  端末：—
-</div>
-
+  <title>入場料レジ</title>
 
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#111111">
 
   <style>
     :root{ --barH: 170px; }
-    body{ margin:0; font-family:-apple-system,system-ui,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; background:#fafafa; }
+
+    body{
+      margin:0;
+      font-family:-apple-system, system-ui, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background:#fafafa;
+    }
+
+    a.back{
+      display:inline-block; margin:10px 12px 0;
+      color:#1e88e5; text-decoration:none; font-weight:900;
+    }
+
     h1{ margin:0; padding:12px 14px 8px; font-size:18px; }
+
+    #deviceLabel{
+      padding:0 14px 8px;
+      font-weight:900;
+      font-size:18px;
+      color:#111;
+    }
+
     .app{ height:100svh; display:flex; flex-direction:column; }
-    .scroll{ flex:1; overflow:auto; padding:0 12px calc(var(--barH) + 16px); }
+
+    .scroll{
+      flex:1; overflow:auto;
+      padding:0 12px calc(var(--barH) + 16px);
+    }
+
     .grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px; }
-    .card{ background:#fff; border:1px solid #ddd; border-radius:12px; padding:10px; }
-    .name{ font-size:14px; font-weight:900; text-align:center; margin-bottom:8px; }
-    button{ width:100%; border:0; border-radius:12px; font-weight:900; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
-    .sale{ background:#1e88e5; color:#fff; font-size:20px; padding:14px 10px; }
-    .refund{ background:#e53935; color:#fff; font-size:16px; padding:10px; margin-top:8px; }
-    .summary{ margin-top:14px; background:#111; color:#fff; border-radius:14px; padding:14px; }
+
+    .card{
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:12px;
+      padding:10px;
+    }
+
+    .name{
+      font-size:14px;
+      font-weight:900;
+      text-align:center;
+      margin-bottom:8px;
+    }
+
+    button{
+      width:100%;
+      border:0;
+      border-radius:12px;
+      font-weight:900;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+    }
+
+    .sale{
+      background:#1e88e5;
+      color:#fff;
+      font-size:20px;
+      padding:14px 10px;
+    }
+
+    .refund{
+      background:#e53935;
+      color:#fff;
+      font-size:16px;
+      padding:10px;
+      margin-top:8px;
+    }
+
+    .summary{
+      margin-top:14px;
+      background:#111;
+      color:#fff;
+      border-radius:14px;
+      padding:14px;
+    }
+
     .total{ font-size:28px; font-weight:900; margin-top:4px; }
     .small{ font-size:13px; opacity:.9; margin-top:6px; }
-    .row{ display:flex; gap:10px; margin-top:10px; }
-    .ghost{ background:#f2f2f2; color:#111; padding:10px; border-radius:12px; font-size:14px; font-weight:900; }
+
+    .row{ display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+    .ghost{
+      background:#f2f2f2;
+      color:#111;
+      padding:10px;
+      border-radius:12px;
+      font-size:14px;
+      font-weight:900;
+    }
+
     .bar{
-      position:fixed; left:0; right:0; bottom:0; z-index:99999;
-      background:#fff; border-top:1px solid #ddd;
+      position:fixed;
+      left:0; right:0; bottom:0;
+      z-index:99999;
+      background:#fff;
+      border-top:1px solid #ddd;
       box-shadow:0 -6px 16px rgba(0,0,0,.15);
       padding:10px 12px calc(10px + env(safe-area-inset-bottom));
-      height:var(--barH); box-sizing:border-box;
+      height:var(--barH);
+      box-sizing:border-box;
     }
-    .barTop{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+
+    .barTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:8px;
+    }
     .barTitle{ font-size:14px; font-weight:900; }
     .barTotal{ font-size:18px; font-weight:900; }
-    .list{ max-height:70px; overflow:auto; border-top:1px dashed #ddd; padding-top:6px; font-size:13px; }
-    .lineItem{ display:flex; justify-content:space-between; padding:4px 0; }
+
+    .list{
+      max-height:70px;
+      overflow:auto;
+      border-top:1px dashed #ddd;
+      padding-top:6px;
+      font-size:13px;
+    }
+
+    .lineItem{
+      display:flex;
+      justify-content:space-between;
+      padding:4px 0;
+    }
+
     .barBtns{ display:flex; gap:10px; margin-top:8px; }
-    .confirm{ flex:1; background:#2e7d32; color:#fff; font-size:18px; padding:14px; border-radius:14px; }
-    .clear{ width:34%; background:#616161; color:#fff; font-size:15px; padding:14px; border-radius:14px; }
+    .confirm{
+      flex:1;
+      background:#2e7d32;
+      color:#fff;
+      font-size:18px;
+      padding:14px;
+      border-radius:14px;
+    }
+    .clear{
+      width:34%;
+      background:#616161;
+      color:#fff;
+      font-size:15px;
+      padding:14px;
+      border-radius:14px;
+    }
     .hint{ font-size:12px; color:#666; margin-top:6px; }
-    a.back{ display:inline-block; margin:10px 12px 0; color:#1e88e5; text-decoration:none; font-weight:900; }
   </style>
 </head>
+
 <body>
-  <a class="back" href="./index.html">← メニューに戻る</a>
-  <div class="app">
-    <h1>恐竜レジ</h1>
+<a class="back" href="./index.html">← メニューに戻る</a>
 
-    <div class="scroll">
-      <div class="grid" id="items"></div>
+<div class="app">
+  <h1>入場料レジ（現金のみ）</h1>
+  <div id="deviceLabel">端末：—</div>
 
-      <div class="summary">
-        <div>売上合計</div>
-        <div class="total" id="total">＊＊＊＊</div>
-        <div class="small" id="counts">（非表示）</div>
+  <div class="scroll">
+    <div class="grid" id="items"></div>
 
-        <div class="row">
-          <button class="ghost" id="unlock">売上を見る</button>
-          <button class="ghost" id="lock">隠す</button>
-        </div>
+    <div class="summary">
+      <div>売上合計</div>
+      <div class="total" id="total">＊＊＊＊</div>
+      <div class="small" id="counts">（非表示）</div>
 
-        <div class="small" id="dayInfo"></div>
-      </div>
-    </div>
-
-    <div class="bar">
-      <div class="barTop">
-        <div class="barTitle">確定前（まとめ）</div>
-        <div class="barTotal" id="pTotal">—</div>
+      <div class="row">
+        <button class="ghost" id="unlock">売上を見る</button>
+        <button class="ghost" id="lock">隠す</button>
+        <button class="ghost" id="adminBtn">管理者</button>
       </div>
 
-      <div class="list" id="pList">未選択</div>
-
-      <div class="barBtns">
-        <button class="confirm" id="confirmBtn">確定</button>
-        <button class="clear" id="clearBtn">クリア</button>
-      </div>
-
-      <div class="hint">※オンライン時はその場で送信／オフライン時は保存→復帰で自動送信</div>
+      <div class="small" id="dayInfo"></div>
     </div>
   </div>
 
+  <!-- 確定バー -->
+  <div class="bar">
+    <div class="barTop">
+      <div class="barTitle">確定前（まとめ）</div>
+      <div class="barTotal" id="pTotal">—</div>
+    </div>
+
+    <div class="list" id="pList">未選択</div>
+
+    <div class="barBtns">
+      <button class="confirm" id="confirmBtn">確定</button>
+      <button class="clear" id="clearBtn">クリア</button>
+    </div>
+
+    <div class="hint">※オンライン時はその場で送信／オフライン時は保存→復帰で自動送信</div>
+  </div>
+</div>
+
+<!-- 管理者パネル -->
+<div id="adminModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:999999;">
+  <div style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+              width:min(720px,92vw); max-height:82vh; overflow:auto;
+              background:#fff; border-radius:16px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,.25);">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+      <div style="font-weight:900; font-size:18px;">管理者メニュー（入場料レジ）</div>
+      <button id="adminClose" class="ghost" style="padding:10px 12px;">閉じる</button>
+    </div>
+
+    <div style="margin-top:10px; padding:10px; border:1px solid #eee; border-radius:12px;">
+      <div style="font-weight:900; margin-bottom:6px;">端末名（この端末）</div>
+      <input id="adminDevice" style="width:100%; padding:10px; font-size:16px; border-radius:10px; border:1px solid #ccc;" />
+      <div style="font-size:12px; color:#666; margin-top:6px;">例：受付A / 受付B / ふわふわ</div>
+    </div>
+
+    <div style="margin-top:10px; padding:10px; border:1px solid #eee; border-radius:12px;">
+      <div style="font-weight:900; margin-bottom:6px;">商品（名前・価格・返金）</div>
+      <div style="font-size:12px; color:#666; margin-bottom:8px;">
+        ※このページ（入場料レジ）だけに保存されます
+      </div>
+
+      <div id="adminProducts"></div>
+
+      <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+        <button id="adminAdd" class="ghost" style="padding:10px 12px;">＋ 商品を追加</button>
+        <button id="adminReset" class="ghost" style="padding:10px 12px;">初期設定に戻す</button>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <button id="adminSave" style="flex:1; background:#2e7d32; color:#fff; border:0; border-radius:14px; font-weight:900; font-size:16px; padding:14px;">保存</button>
+      <button id="adminCancel" style="width:34%; background:#616161; color:#fff; border:0; border-radius:14px; font-weight:900; font-size:16px; padding:14px;">キャンセル</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (() => {
-  // Service Worker（オフライン起動用）
+  // PWA（オフライン起動用）
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(console.log);
   }
 
-  // ★あなたのGAS WebアプリURL
+  // ===== 設定 =====
   const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwIATpKGHWwn33_nEH4asRggzpzQziSY70LjW8sdQ4I9AdUP54j3l_oBkhEqZHy-xQoXQ/exec";
-
+  const ADMIN_PASSWORD = "7777";
   const PASSWORD = "7777";
+
+  // 端末名（共通）
   const DEVICE_KEY = "pos_device_name";
 
-function getDeviceName(){
-  let name = localStorage.getItem(DEVICE_KEY);
-  if(!name){
-    name = prompt("このレジの名前を入力してください\n例：受付A / 受付B / ふわふわ");
-    if(!name) name = "未設定";
-    localStorage.setItem(DEVICE_KEY, name);
-  }
-  return name;
-}
+  // ★このページ専用：商品設定の保存キー
+  const PRODUCTS_KEY = "pos_products_entry_v1";
 
-let DEVICE_NAME = getDeviceName();
+  // ★このページ専用：オフライン送信キュー
+  const QUEUE_KEY = "pos_queue_entry_v1";
 
-
-  const PRODUCTS = [
-    { key:"entry", name:"入場料",           price:500 },
-    { key:"goods", name:"グッズ",           price:300 },
-    { key:"walk",  name:"お散歩ダイナソー", price:500 },
+  // 初期商品（入場料）
+  const DEFAULT_PRODUCTS = [
+    { key:"entry", name:"入場料", price:500, refundable:true },
+    { key:"goods", name:"グッズ", price:300, refundable:true },
+    { key:"walk",  name:"お散歩ダイナソー", price:500, refundable:true }
   ];
 
-  // オフラインキュー
-  const QUEUE_KEY = "pos_entry_rows_queue_pwa_v1";
+  function deepClone(x){ return JSON.parse(JSON.stringify(x)); }
+
+  function getDeviceName(){
+    let name = localStorage.getItem(DEVICE_KEY);
+    if(!name){
+      name = prompt("このレジの名前を入力してください\n例：受付A / 受付B / ふわふわ");
+      if(!name) name = "未設定";
+      localStorage.setItem(DEVICE_KEY, name);
+    }
+    return name;
+  }
+  let DEVICE_NAME = getDeviceName();
+
+  function loadProducts(){
+    try{
+      const raw = localStorage.getItem(PRODUCTS_KEY);
+      if(!raw) return deepClone(DEFAULT_PRODUCTS);
+      const arr = JSON.parse(raw);
+      if(!Array.isArray(arr) || !arr.length) return deepClone(DEFAULT_PRODUCTS);
+      return arr.map((p,i)=>({
+        key: (p.key && String(p.key)) || `p${i+1}`,
+        name: (p.name && String(p.name)) || "商品",
+        price: Number(p.price) || 0,
+        refundable: p.refundable !== false,
+      }));
+    }catch(e){
+      return deepClone(DEFAULT_PRODUCTS);
+    }
+  }
+  function saveProducts(arr){
+    localStorage.setItem(PRODUCTS_KEY, JSON.stringify(arr));
+  }
+
+  let PRODUCTS = loadProducts();
+
+  // ===== オフライン送信キュー =====
   const loadQueue = () => { try{ return JSON.parse(localStorage.getItem(QUEUE_KEY)||"[]"); }catch(e){ return []; } };
   const saveQueue = (q) => { try{ localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); }catch(e){} };
   const enqueueRows = (rows) => { if(!rows?.length) return; const q=loadQueue(); q.push(...rows); saveQueue(q); };
@@ -141,62 +320,83 @@ let DEVICE_NAME = getDeviceName();
   window.addEventListener("online", flushQueue);
   window.addEventListener("load", flushQueue);
 
-  // UI要素
-  const itemsEl   = document.getElementById("items");
-  const pTotalEl  = document.getElementById("pTotal");
-  const pListEl   = document.getElementById("pList");
-  const confirmBtn= document.getElementById("confirmBtn");
-  const clearBtn  = document.getElementById("clearBtn");
-  const totalEl   = document.getElementById("total");
-  const countsEl  = document.getElementById("counts");
-  const dayInfoEl = document.getElementById("dayInfo");
+  // ===== UI要素 =====
+  const itemsEl    = document.getElementById("items");
+  const pTotalEl   = document.getElementById("pTotal");
+  const pListEl    = document.getElementById("pList");
+  const totalEl    = document.getElementById("total");
+  const countsEl   = document.getElementById("counts");
+  const dayInfoEl  = document.getElementById("dayInfo");
+  const deviceLbl  = document.getElementById("deviceLabel");
+  const confirmBtn = document.getElementById("confirmBtn");
+  const clearBtn   = document.getElementById("clearBtn");
 
-  let unlocked=false;
-  let pending={}; // {key:{name,price,qty}}
-  let total=0;
-  let counts=Object.fromEntries(PRODUCTS.map(p=>[p.key,0]));
+  let unlocked = false;
+  let pending = {};  // {key:{name,price,qty}}
+  let total = 0;
+  let counts = {};
 
-  // 商品カード生成
-  PRODUCTS.forEach(p=>{
-    const d=document.createElement("div");
-    d.className="card";
-    d.innerHTML=`
-      <div class="name">${p.name}</div>
-      <button class="sale" data-key="${p.key}" data-sign="1">¥${p.price}</button>
-      <button class="refund" data-key="${p.key}" data-sign="-1">返金</button>
-    `;
-    itemsEl.appendChild(d);
-  });
+  function resetCounts(){
+    counts = {};
+    PRODUCTS.forEach(p=>counts[p.key]=0);
+  }
+  resetCounts();
+
+  function renderProducts(){
+    itemsEl.innerHTML = "";
+    PRODUCTS.forEach(p=>{
+      const d = document.createElement("div");
+      d.className="card";
+      d.innerHTML = `
+        <div class="name">${escapeHtml(p.name)}</div>
+        <button class="sale" data-key="${escapeHtml(p.key)}" data-sign="1">¥${Number(p.price).toLocaleString()}</button>
+        ${p.refundable ? `<button class="refund" data-key="${escapeHtml(p.key)}" data-sign="-1">返金</button>` : ``}
+      `;
+      itemsEl.appendChild(d);
+    });
+  }
 
   itemsEl.addEventListener("click", (e)=>{
-    const b=e.target.closest("button");
+    const b = e.target.closest("button");
     if(!b) return;
-    const key=b.dataset.key;
-    const sign=Number(b.dataset.sign||0);
-    const p=PRODUCTS.find(x=>x.key===key);
+    const key = b.dataset.key;
+    const sign = Number(b.dataset.sign || 0);
+    const p = PRODUCTS.find(x=>x.key===key);
     if(!p || !sign) return;
 
-    if(!pending[key]) pending[key]={name:p.name, price:p.price, qty:0};
+    if(!pending[key]) pending[key] = { name:p.name, price:Number(p.price)||0, qty:0 };
     pending[key].qty += sign;
-    if(pending[key].qty===0) delete pending[key];
+
+    if(pending[key].qty === 0) delete pending[key];
     renderPending();
   });
 
   confirmBtn.addEventListener("click", ()=>{
-    const keys=Object.keys(pending);
+    const keys = Object.keys(pending);
     if(!keys.length) return;
 
-    const nowTs=Date.now();
-    const rows=[];
+    const nowTs = Date.now();
+    const rows = [];
+
     keys.forEach(k=>{
-      const it=pending[k];
-      const sub=it.price*it.qty; // 返金はマイナス
+      const it = pending[k];
+      const sub = it.price * it.qty;  // 返金はマイナス
+
       total += sub;
+      if(counts[k] == null) counts[k] = 0;
       counts[k] += it.qty;
-      rows.push({ ts:nowTs, device:DEVICE_NAME, key:k, name:it.name, unitPrice:it.price, qty:it.qty, subtotal:sub });
+
+      rows.push({
+        ts: nowTs,
+        device: DEVICE_NAME,
+        key: k,
+        name: it.name,
+        unitPrice: it.price,
+        qty: it.qty,
+        subtotal: sub
+      });
     });
 
-    // オンラインなら「今回分だけ」送信（失敗→キューへ）
     if(navigator.onLine){
       fetch(GAS_WEBAPP_URL,{
         method:"POST",
@@ -209,64 +409,193 @@ let DEVICE_NAME = getDeviceName();
       enqueueRows(rows);
     }
 
-    pending={};
-    renderMain();
+    pending = {};
+    render();
     renderPending();
   });
 
   clearBtn.addEventListener("click", ()=>{
-    pending={};
+    pending = {};
     renderPending();
   });
 
   document.getElementById("unlock").addEventListener("click", ()=>{
-    const pw=prompt("パスワード");
-    if(pw===PASSWORD){ unlocked=true; renderMain(); }
-    else if(pw!==null){ alert("パスワードが違います"); }
-  });
-  document.getElementById("lock").addEventListener("click", ()=>{
-    unlocked=false; renderMain();
+    const pw = prompt("パスワード");
+    if(pw === PASSWORD){ unlocked = true; render(); }
+    else if(pw !== null){ alert("パスワードが違います"); }
   });
 
-  function renderMain(){
+  document.getElementById("lock").addEventListener("click", ()=>{
+    unlocked = false; render();
+  });
+
+  function render(){
+    deviceLbl.textContent = "端末： " + DEVICE_NAME;
+
     if(unlocked){
       totalEl.textContent = `¥${total.toLocaleString()}`;
-      countsEl.textContent = PRODUCTS.map(p=>`${p.name}:${counts[p.key]}回`).join(" / ");
+      countsEl.textContent = PRODUCTS.map(p=>`${p.name}:${counts[p.key]||0}回`).join(" / ");
     }else{
-      totalEl.textContent="＊＊＊＊";
-      countsEl.textContent="（非表示）";
+      totalEl.textContent = "＊＊＊＊";
+      countsEl.textContent = "（非表示）";
     }
-    const ds=new Date().toLocaleDateString("ja-JP");
-    dayInfoEl.textContent=`日付:${ds} / 端末:${DEVICE_NAME} / ${navigator.onLine?"オンライン":"オフライン"}`;
-    const dEl = document.getElementById("deviceLabel");
-if(dEl) dEl.textContent = "端末： " + DEVICE_NAME;
-  }
-  
 
+    const ds = new Date().toLocaleDateString("ja-JP");
+    dayInfoEl.textContent = `日付:${ds} / 端末:${DEVICE_NAME} / ${navigator.onLine?"オンライン":"オフライン"}`;
+  }
 
   function renderPending(){
-    const items=Object.values(pending);
+    const items = Object.values(pending);
     if(!items.length){
-      pTotalEl.textContent="—";
-      pListEl.innerHTML="未選択";
+      pTotalEl.textContent = "—";
+      pListEl.innerHTML = "未選択";
       return;
     }
-    let q=0,y=0;
-    items.forEach(it=>{ q+=it.qty; y+=it.price*it.qty; });
-    pTotalEl.textContent=`${q}点 合計 ¥${y.toLocaleString()}`;
+    let q=0, y=0;
+    items.forEach(it=>{ q += Math.abs(it.qty); y += it.price * it.qty; });
 
-    const shown=items.slice(0,3);
+    const sign = (y<0) ? "-" : "";
+    pTotalEl.textContent = `${q}点 合計 ${sign}¥${Math.abs(y).toLocaleString()}`;
+
+    const shown = items.slice(0,3);
     pListEl.innerHTML =
       shown.map(it=>{
-        const sub=it.price*it.qty;
-        return `<div class="lineItem"><div>${it.name}×${it.qty}</div><div>¥${sub.toLocaleString()}</div></div>`;
+        const sub = it.price * it.qty;
+        const sgn = (sub<0) ? "-" : "";
+        const qty = it.qty;
+        return `<div class="lineItem"><div>${escapeHtml(it.name)}×${qty}</div><div>${sgn}¥${Math.abs(sub).toLocaleString()}</div></div>`;
       }).join("") + (items.length>3 ? `<div class="lineItem">…他${items.length-3}件</div>` : "");
   }
 
-  renderMain();
+  // ===== 管理者メニュー =====
+  const adminBtn = document.getElementById("adminBtn");
+  const adminModal = document.getElementById("adminModal");
+  const adminClose = document.getElementById("adminClose");
+  const adminCancel = document.getElementById("adminCancel");
+  const adminSave = document.getElementById("adminSave");
+  const adminAdd = document.getElementById("adminAdd");
+  const adminReset = document.getElementById("adminReset");
+  const adminDevice = document.getElementById("adminDevice");
+  const adminProducts = document.getElementById("adminProducts");
+
+  let adminDraft = null;
+
+  function openAdmin(){
+    const pw = prompt("管理者パスワード");
+    if(pw !== ADMIN_PASSWORD) return alert("パスワードが違います");
+    adminDraft = {
+      device: DEVICE_NAME,
+      products: PRODUCTS.map(p=>({...p}))
+    };
+    adminDevice.value = adminDraft.device;
+    renderAdminProducts();
+    adminModal.style.display = "block";
+  }
+
+  function closeAdmin(){
+    adminModal.style.display = "none";
+    adminDraft = null;
+  }
+
+  function renderAdminProducts(){
+    adminProducts.innerHTML = "";
+    adminDraft.products.forEach((p, idx)=>{
+      const row = document.createElement("div");
+      row.style.cssText = "display:grid; grid-template-columns:1.6fr 1fr .9fr .6fr; gap:8px; align-items:center; margin-top:8px;";
+      row.innerHTML = `
+        <input data-f="name" data-i="${idx}" value="${escapeAttr(p.name)}"
+          style="width:100%; padding:10px; font-size:16px; border-radius:10px; border:1px solid #ccc;" />
+        <input data-f="price" data-i="${idx}" value="${Number(p.price)||0}" inputmode="numeric"
+          style="width:100%; padding:10px; font-size:16px; border-radius:10px; border:1px solid #ccc;" />
+        <label style="display:flex; gap:6px; align-items:center; font-size:13px;">
+          <input type="checkbox" data-f="refundable" data-i="${idx}" ${p.refundable ? "checked" : ""}/>返金
+        </label>
+        <button data-del="${idx}" class="ghost" style="padding:10px 8px;">削除</button>
+      `;
+      adminProducts.appendChild(row);
+    });
+  }
+
+  adminProducts.addEventListener("input", (e)=>{
+    const t = e.target;
+    const i = Number(t.dataset.i);
+    if(!adminDraft || !Number.isFinite(i)) return;
+    if(t.dataset.f === "name") adminDraft.products[i].name = t.value;
+    if(t.dataset.f === "price") adminDraft.products[i].price = Number(t.value || 0);
+  });
+
+  adminProducts.addEventListener("change", (e)=>{
+    const t = e.target;
+    const i = Number(t.dataset.i);
+    if(!adminDraft || !Number.isFinite(i)) return;
+    if(t.dataset.f === "refundable") adminDraft.products[i].refundable = !!t.checked;
+  });
+
+  adminProducts.addEventListener("click", (e)=>{
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    const di = btn.dataset.del;
+    if(di == null) return;
+    adminDraft.products.splice(Number(di), 1);
+    renderAdminProducts();
+  });
+
+  adminAdd.onclick = ()=>{
+    adminDraft.products.push({ key:`p${Date.now()}`, name:"新商品", price:0, refundable:true });
+    renderAdminProducts();
+  };
+
+  adminReset.onclick = ()=>{
+    if(!confirm("入場料レジを初期設定に戻しますか？")) return;
+    adminDraft.products = deepClone(DEFAULT_PRODUCTS);
+    renderAdminProducts();
+  };
+
+  adminSave.onclick = ()=>{
+    // 端末名（共通）
+    const newDevice = adminDevice.value.trim() || "未設定";
+    localStorage.setItem(DEVICE_KEY, newDevice);
+    DEVICE_NAME = newDevice;
+
+    // 商品（このページ専用）
+    PRODUCTS = adminDraft.products.map((p,i)=>({
+      key: (p.key && String(p.key)) || `p${i+1}`,
+      name: (p.name && String(p.name).trim()) || "商品",
+      price: Number(p.price) || 0,
+      refundable: p.refundable !== false,
+    }));
+    saveProducts(PRODUCTS);
+
+    // pending / counts を安全に再構築
+    pending = {};
+    resetCounts();
+    renderProducts();
+    render();
+    renderPending();
+
+    closeAdmin();
+    alert("保存しました（入場料レジ）");
+  };
+
+  adminBtn.onclick = openAdmin;
+  adminClose.onclick = closeAdmin;
+  adminCancel.onclick = closeAdmin;
+
+  function escapeHtml(s){
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+  function escapeAttr(s){ return escapeHtml(s); }
+
+  // 初期描画
+  renderProducts();
+  render();
   renderPending();
 })();
 </script>
 </body>
 </html>
-
