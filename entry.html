@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>入場料レジ</title>
+  <title>恐竜レジ</title>
 
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#111111">
@@ -160,7 +160,7 @@
 <a class="back" href="./index.html">← メニューに戻る</a>
 
 <div class="app">
-  <h1>入場料レジ（現金のみ）</h1>
+  <h1>恐竜料レジ</h1>
   <div id="deviceLabel">端末：—</div>
 
   <div class="scroll">
@@ -205,7 +205,7 @@
               width:min(720px,92vw); max-height:82vh; overflow:auto;
               background:#fff; border-radius:16px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,.25);">
     <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-      <div style="font-weight:900; font-size:18px;">管理者メニュー（入場料レジ）</div>
+      <div style="font-weight:900; font-size:18px;">管理者メニュー（恐竜レジ）</div>
       <button id="adminClose" class="ghost" style="padding:10px 12px;">閉じる</button>
     </div>
 
@@ -218,7 +218,7 @@
     <div style="margin-top:10px; padding:10px; border:1px solid #eee; border-radius:12px;">
       <div style="font-weight:900; margin-bottom:6px;">商品（名前・価格・返金）</div>
       <div style="font-size:12px; color:#666; margin-bottom:8px;">
-        ※このページ（入場料レジ）だけに保存されます
+        ※このページ（恐竜レジ）だけに保存されます
       </div>
 
       <div id="adminProducts"></div>
@@ -546,7 +546,7 @@
   };
 
   adminReset.onclick = ()=>{
-    if(!confirm("入場料レジを初期設定に戻しますか？")) return;
+    if(!confirm("恐竜レジを初期設定に戻しますか？")) return;
     adminDraft.products = deepClone(DEFAULT_PRODUCTS);
     renderAdminProducts();
   };
@@ -574,7 +574,7 @@
     renderPending();
 
     closeAdmin();
-    alert("保存しました（入場料レジ）");
+    alert("保存しました（恐竜レジ）");
   };
 
   adminBtn.onclick = openAdmin;
@@ -599,3 +599,4 @@
 </script>
 </body>
 </html>
+
