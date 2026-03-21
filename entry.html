@@ -614,38 +614,67 @@
       });
     });
 
-    const finish = (message)=>{
-      pending = {};
-      render();
-      renderPending();
-      showToast(message);
-      vibrate(25);
-      confirmBusy = false;
-      confirmBtn.disabled = false;
-      confirmBtn.textContent = "確定";
-    };
+    
+    confirmBtn.addEventListener("click", ()=>{
+  if(confirmBusy) return;
 
-    if(navigator.onLine){
-      fetch(GAS_WEBAPP_URL,{
-        method:"POST",
-        headers:{ "Content-Type":"text/plain;charset=utf-8" },
-        body: JSON.stringify(rows)
-      }).then(res=>{
-        if(!res.ok){
-          enqueueRows(rows);
-          finish("保存しました（通信失敗→後で送信）");
-        }else{
-          finish("確定しました");
-        }
-      }).catch(()=>{
-        enqueueRows(rows);
-        finish("保存しました（オフライン待機）");
-      });
-    }else{
-      enqueueRows(rows);
-      finish("保存しました（オフライン）");
-    }
+  const keys = Object.keys(pending);
+  if(!keys.length){
+    showToast("商品を選んでください");
+    vibrate(12);
+    return;
+  }
+
+  confirmBusy = true;
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = "送信中…";
+
+  const nowTs = Date.now();
+  const rows = [];
+
+  keys.forEach(k=>{
+    const it = pending[k];
+    const sub = it.price * it.qty;
+
+    total += sub;
+    if(counts[k] == null) counts[k] = 0;
+    counts[k] += it.qty;
+
+    rows.push({
+      ts: nowTs,
+      device: DEVICE_NAME,
+      key: k,
+      name: it.name,
+      unitPrice: it.price,
+      qty: it.qty,
+      subtotal: sub
+    });
   });
+
+  // 通信は裏で送る
+  if(navigator.onLine){
+    fetch(GAS_WEBAPP_URL,{
+      method:"POST",
+      headers:{ "Content-Type":"text/plain;charset=utf-8" },
+      body: JSON.stringify(rows)
+    }).catch(()=>{
+      enqueueRows(rows);
+    });
+  }else{
+    enqueueRows(rows);
+  }
+
+  // 画面はすぐ戻す
+  pending = {};
+  render();
+  renderPending();
+  showToast("確定しました");
+  vibrate(25);
+
+  confirmBusy = false;
+  confirmBtn.disabled = false;
+  confirmBtn.textContent = "確定";
+});
 
   clearBtn.addEventListener("click", ()=>{
     pending = {};
