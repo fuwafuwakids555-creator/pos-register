@@ -280,29 +280,6 @@
       opacity:1;
       transform:translateY(0) scale(1);
     }
-
-    .pulseFlash{
-      position:absolute;
-      inset:0;
-      border-radius:inherit;
-      background:rgba(255,255,255,.22);
-      opacity:0;
-      pointer-events:none;
-    }
-
-    .hasFlash{
-      position:relative;
-      overflow:hidden;
-    }
-
-    .hasFlash.flash .pulseFlash{
-      animation:flashAnim .22s ease;
-    }
-
-    @keyframes flashAnim{
-      0%{ opacity:.55; }
-      100%{ opacity:0; }
-    }
   </style>
 </head>
 
@@ -516,20 +493,7 @@
   function pressFx(el){
     if(!el) return;
     el.classList.add("pressed");
-    el.classList.add("flash");
     setTimeout(()=>el.classList.remove("pressed"), 90);
-    setTimeout(()=>el.classList.remove("flash"), 220);
-  }
-
-  function attachButtonPressFeedback(root=document){
-    root.querySelectorAll("button").forEach(btn=>{
-      if(!btn.classList.contains("hasFlash")){
-        btn.classList.add("hasFlash");
-        const span = document.createElement("span");
-        span.className = "pulseFlash";
-        btn.appendChild(span);
-      }
-    });
   }
 
   function renderProducts(){
@@ -539,12 +503,11 @@
       d.className = "card";
       d.innerHTML = `
         <div class="name">${escapeHtml(p.name)}</div>
-        <button class="sale hasFlash" data-key="${escapeHtml(p.key)}" data-sign="1">¥${Number(p.price).toLocaleString()}<span class="pulseFlash"></span></button>
-        ${p.refundable ? `<button class="refund hasFlash" data-key="${escapeHtml(p.key)}" data-sign="-1">返金<span class="pulseFlash"></span></button>` : ``}
+        <button class="sale" data-key="${escapeHtml(p.key)}" data-sign="1">¥${Number(p.price).toLocaleString()}</button>
+        ${p.refundable ? `<button class="refund" data-key="${escapeHtml(p.key)}" data-sign="-1">返金</button>` : ``}
       `;
       itemsEl.appendChild(d);
     });
-    attachButtonPressFeedback(itemsEl);
   }
 
   itemsEl.addEventListener("pointerdown", (e)=>{
@@ -611,37 +574,27 @@
       });
     });
 
-    const finish = (message)=>{
-      pending = {};
-      render();
-      renderPending();
-      showToast(message);
-      vibrate(25);
-      confirmBusy = false;
-      confirmBtn.disabled = false;
-      confirmBtn.textContent = "確定";
-    };
-
     if(navigator.onLine){
       fetch(GAS_WEBAPP_URL,{
         method:"POST",
         headers:{ "Content-Type":"text/plain;charset=utf-8" },
         body: JSON.stringify(rows)
-      }).then(res=>{
-        if(!res.ok){
-          enqueueRows(rows);
-          finish("保存しました（通信失敗→後で送信）");
-        }else{
-          finish("確定しました");
-        }
       }).catch(()=>{
         enqueueRows(rows);
-        finish("保存しました（オフライン待機）");
       });
     }else{
       enqueueRows(rows);
-      finish("保存しました（オフライン）");
     }
+
+    pending = {};
+    render();
+    renderPending();
+    showToast("確定しました");
+    vibrate(25);
+
+    confirmBusy = false;
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = "確定";
   });
 
   clearBtn.addEventListener("click", ()=>{
@@ -651,8 +604,11 @@
     vibrate(14);
   });
 
-  document.getElementById("unlock").addEventListener("click", (e)=>{
-    pressFx(e.currentTarget);
+  document.getElementById("unlock").addEventListener("pointerdown", (e)=> pressFx(e.currentTarget));
+  document.getElementById("lock").addEventListener("pointerdown", (e)=> pressFx(e.currentTarget));
+  document.getElementById("adminBtn").addEventListener("pointerdown", (e)=> pressFx(e.currentTarget));
+
+  document.getElementById("unlock").addEventListener("click", ()=>{
     const pw = prompt("パスワード");
     if(pw === PASSWORD){
       unlocked = true;
@@ -663,8 +619,7 @@
     }
   });
 
-  document.getElementById("lock").addEventListener("click", (e)=>{
-    pressFx(e.currentTarget);
+  document.getElementById("lock").addEventListener("click", ()=>{
     unlocked = false;
     render();
     showToast("売上を隠しました");
@@ -758,11 +713,10 @@
         <label style="display:flex; gap:6px; align-items:center; font-size:13px;">
           <input type="checkbox" data-f="refundable" data-i="${idx}" ${p.refundable ? "checked" : ""}/>返金
         </label>
-        <button data-del="${idx}" class="ghost hasFlash" style="padding:10px 8px;">削除<span class="pulseFlash"></span></button>
+        <button data-del="${idx}" class="ghost" style="padding:10px 8px;">削除</button>
       `;
       adminProducts.appendChild(row);
     });
-    attachButtonPressFeedback(adminProducts);
   }
 
   adminProducts.addEventListener("input", (e)=>{
@@ -795,15 +749,19 @@
     renderAdminProducts();
   });
 
+  adminAdd.addEventListener("pointerdown", ()=> pressFx(adminAdd));
+  adminReset.addEventListener("pointerdown", ()=> pressFx(adminReset));
+  adminSave.addEventListener("pointerdown", ()=> pressFx(adminSave));
+  adminClose.addEventListener("pointerdown", ()=> pressFx(adminClose));
+  adminCancel.addEventListener("pointerdown", ()=> pressFx(adminCancel));
+
   adminAdd.onclick = ()=>{
-    pressFx(adminAdd);
     adminDraft.products.push({ key:`p${Date.now()}`, name:"新商品", price:0, refundable:true });
     renderAdminProducts();
     showToast("商品を追加しました");
   };
 
   adminReset.onclick = ()=>{
-    pressFx(adminReset);
     if(!confirm("ふわふわレジを初期設定に戻しますか？")) return;
     adminDraft.products = deepClone(DEFAULT_PRODUCTS);
     renderAdminProducts();
@@ -811,8 +769,6 @@
   };
 
   adminSave.onclick = ()=>{
-    pressFx(adminSave);
-
     const newDevice = adminDevice.value.trim() || "未設定";
     localStorage.setItem(DEVICE_KEY, newDevice);
     DEVICE_NAME = newDevice;
@@ -836,9 +792,9 @@
     alert("保存しました（ふわふわ）");
   };
 
-  adminBtn.onclick = (e)=>{ pressFx(e.currentTarget); openAdmin(); };
-  adminClose.onclick = (e)=>{ pressFx(e.currentTarget); closeAdmin(); };
-  adminCancel.onclick = (e)=>{ pressFx(e.currentTarget); closeAdmin(); };
+  adminBtn.onclick = openAdmin;
+  adminClose.onclick = closeAdmin;
+  adminCancel.onclick = closeAdmin;
 
   function escapeHtml(s){
     return String(s)
@@ -853,7 +809,6 @@
     return escapeHtml(s);
   }
 
-  attachButtonPressFeedback(document);
   renderProducts();
   render();
   renderPending();
