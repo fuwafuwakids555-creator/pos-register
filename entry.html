@@ -245,7 +245,6 @@
       margin-top:6px;
     }
 
-    /* 押せた表示 */
     #tapToastWrap{
       position:fixed;
       left:0;
@@ -281,7 +280,6 @@
       transform:translateY(0) scale(1);
     }
 
-    /* ボタン内の小さな反応 */
     .pulseFlash{
       position:absolute;
       inset:0;
@@ -614,67 +612,28 @@
       });
     });
 
-    
-    confirmBtn.addEventListener("click", ()=>{
-  if(confirmBusy) return;
-
-  const keys = Object.keys(pending);
-  if(!keys.length){
-    showToast("商品を選んでください");
-    vibrate(12);
-    return;
-  }
-
-  confirmBusy = true;
-  confirmBtn.disabled = true;
-  confirmBtn.textContent = "送信中…";
-
-  const nowTs = Date.now();
-  const rows = [];
-
-  keys.forEach(k=>{
-    const it = pending[k];
-    const sub = it.price * it.qty;
-
-    total += sub;
-    if(counts[k] == null) counts[k] = 0;
-    counts[k] += it.qty;
-
-    rows.push({
-      ts: nowTs,
-      device: DEVICE_NAME,
-      key: k,
-      name: it.name,
-      unitPrice: it.price,
-      qty: it.qty,
-      subtotal: sub
-    });
-  });
-
-  // 通信は裏で送る
-  if(navigator.onLine){
-    fetch(GAS_WEBAPP_URL,{
-      method:"POST",
-      headers:{ "Content-Type":"text/plain;charset=utf-8" },
-      body: JSON.stringify(rows)
-    }).catch(()=>{
+    if(navigator.onLine){
+      fetch(GAS_WEBAPP_URL,{
+        method:"POST",
+        headers:{ "Content-Type":"text/plain;charset=utf-8" },
+        body: JSON.stringify(rows)
+      }).catch(()=>{
+        enqueueRows(rows);
+      });
+    }else{
       enqueueRows(rows);
-    });
-  }else{
-    enqueueRows(rows);
-  }
+    }
 
-  // 画面はすぐ戻す
-  pending = {};
-  render();
-  renderPending();
-  showToast("確定しました");
-  vibrate(25);
+    pending = {};
+    render();
+    renderPending();
+    showToast("確定しました");
+    vibrate(25);
 
-  confirmBusy = false;
-  confirmBtn.disabled = false;
-  confirmBtn.textContent = "確定";
-});
+    confirmBusy = false;
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = "確定";
+  });
 
   clearBtn.addEventListener("click", ()=>{
     pending = {};
