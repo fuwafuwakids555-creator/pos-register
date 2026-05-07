@@ -169,6 +169,17 @@
       min-height:48px;
     }
 
+    .yen10000{
+      background:#ff9800;
+      color:#111;
+      padding:14px 10px;
+      border-radius:12px;
+      font-size:18px;
+      font-weight:900;
+      min-height:56px;
+      border:3px solid #fff3cd;
+    }
+
     .bar{
       position:fixed;
       left:0;
@@ -326,6 +337,7 @@
         <button class="ghost" id="unlock">売上を見る</button>
         <button class="ghost" id="lock">隠す</button>
         <button class="ghost" id="adminBtn">管理者</button>
+        <button class="yen10000" id="yen10000Btn">一万円札</button>
       </div>
 
       <div class="small" id="dayInfo"></div>
@@ -486,6 +498,7 @@
   const confirmBtn = document.getElementById("confirmBtn");
   const clearBtn   = document.getElementById("clearBtn");
   const tapToastEl = document.getElementById("tapToast");
+  const yen10000Btn = document.getElementById("yen10000Btn");
 
   let unlocked = false;
   let pending = {};
@@ -493,6 +506,7 @@
   let counts = {};
   let toastTimer = null;
   let confirmBusy = false;
+  let yen10000Busy = false;
 
   function resetCounts(){
     counts = {};
@@ -575,6 +589,7 @@
 
   confirmBtn.addEventListener("pointerdown", ()=> pressFx(confirmBtn));
   clearBtn.addEventListener("pointerdown", ()=> pressFx(clearBtn));
+  yen10000Btn.addEventListener("pointerdown", ()=> pressFx(yen10000Btn));
 
   confirmBtn.addEventListener("click", ()=>{
     if(confirmBusy) return;
@@ -602,6 +617,7 @@
       counts[k] += it.qty;
 
       rows.push({
+        type: "sale",
         ts: nowTs,
         device: DEVICE_NAME,
         key: k,
@@ -640,6 +656,53 @@
     renderPending();
     showToast("クリアしました");
     vibrate(14);
+  });
+
+  yen10000Btn.addEventListener("click", ()=>{
+    if(yen10000Busy) return;
+
+    if(!confirm("一万円札の通知を送信しますか？")) return;
+
+    yen10000Busy = true;
+    yen10000Btn.disabled = true;
+    yen10000Btn.textContent = "通知中…";
+
+    const data = {
+      type: "yen10000",
+      ts: Date.now(),
+      device: DEVICE_NAME,
+      page: "恐竜レジ",
+      message: "一万円札が使用されました"
+    };
+
+    function done(text){
+      showToast(text);
+      vibrate(30);
+      yen10000Busy = false;
+      yen10000Btn.disabled = false;
+      yen10000Btn.textContent = "一万円札";
+    }
+
+    if(navigator.onLine){
+      fetch(GAS_WEBAPP_URL,{
+        method:"POST",
+        headers:{ "Content-Type":"text/plain;charset=utf-8" },
+        body: JSON.stringify(data)
+      }).then(res=>{
+        if(res.ok){
+          done("一万円札通知を送信しました");
+        }else{
+          enqueueRows([data]);
+          done("送信失敗のため保存しました");
+        }
+      }).catch(()=>{
+        enqueueRows([data]);
+        done("オフライン保存しました");
+      });
+    }else{
+      enqueueRows([data]);
+      done("オフライン保存しました");
+    }
   });
 
   document.getElementById("unlock").addEventListener("click", (e)=>{
