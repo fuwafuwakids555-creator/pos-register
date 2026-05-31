@@ -549,20 +549,45 @@
 
   // ── 一万円札の処理 ──────────────────────────────────
   function handleYen10000Click(){
-    if(yen10000Busy) return;
-    if(!confirm("一万円札の通知を送信しますか？")) return;
+  if(yen10000Busy) return;
 
-    yen10000Busy = true;
-    const btn = document.getElementById("yen10000Btn");
-    if(btn){ btn.disabled = true; btn.textContent = "通知中…"; }
+  yen10000Busy = true;
+  const btn = document.getElementById("yen10000Btn");
+  if(btn){ btn.disabled = true; btn.textContent = "通知中…"; }
 
-    const data = {
-      type: "yen10000",
-      ts: Date.now(),
-      device: DEVICE_NAME,
-      page: "ふわふわレジ",
-      message: "一万円札が使用されました"
-    };
+  const data = {
+    type: "yen10000",
+    ts: Date.now(),
+    device: DEVICE_NAME,
+    page: "ふわふわレジ", // entry.html は "恐竜レジ"
+    message: "一万円札が使用されました"
+  };
+
+  function done(text){
+    showToast(text);
+    vibrate(30);
+    yen10000Busy = false;
+    const b = document.getElementById("yen10000Btn");
+    if(b){ b.disabled = false; b.textContent = "💴 通知"; }
+  }
+
+  fetch(GAS_WEBAPP_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body: JSON.stringify(data)
+  }).then(res=>{
+    if(res.ok){
+      done("一万円札通知を送信しました");
+    }else{
+      enqueueRows([data]);
+      done("送信失敗のため保存しました");
+    }
+  }).catch(()=>{
+    enqueueRows([data]);
+    done("オフライン保存しました");
+  });
+}
+
 
     function done(text){
       showToast(text);
