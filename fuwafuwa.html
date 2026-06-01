@@ -125,12 +125,17 @@
     <div style="margin-top:10px; padding:10px; border:1px solid #eee; border-radius:12px;">
       <div style="font-weight:900; margin-bottom:6px;">端末名（この端末）</div>
       <input id="adminDevice" style="width:100%; padding:10px; font-size:16px; border-radius:10px; border:1px solid #ccc;" />
-      <div style="font-size:12px; color:#666; margin-top:6px;">例：受付A / 受付B / ふわふわ</div>
+    </div>
+
+    <div style="margin-top:10px; padding:10px; border:1px solid #eee; border-radius:12px;">
+      <div style="font-weight:900; margin-bottom:6px;">一万円札通知メール先</div>
+      <input id="adminNotifyEmail" type="email"
+        style="width:100%; padding:10px; font-size:16px; border-radius:10px; border:1px solid #ccc;"
+        placeholder="例：fuwafuwakids555@gmail.com" />
     </div>
 
     <div style="margin-top:10px; padding:10px; border:1px solid #eee; border-radius:12px;">
       <div style="font-weight:900; margin-bottom:6px;">商品（名前・価格・返金）</div>
-      <div style="font-size:12px; color:#666; margin-bottom:8px;">※このページ（ふわふわ）だけに保存されます</div>
       <div id="adminProducts"></div>
       <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
         <button id="adminAdd" class="ghost" style="padding:10px 12px;">＋ 商品を追加</button>
@@ -151,16 +156,17 @@
     navigator.serviceWorker.register("./sw.js").catch(console.log);
   }
 
-  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyT3SeO06Z5fpoZWbBZPmLrbEO88n7Dlx6vDhwwqJ5ZBIO-x7xSFAWKVXp88y6e_8d_aA/exec";
+  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwIATpKGHWwn33_nEH4asRggzpzQziSY70LjW8sdQ4I9AdUP54j3l_oBkhEqZHy-xQoXQ/exec";
   const ADMIN_PASSWORD = "4181";
   const PASSWORD = "112345";
 
-  const DEVICE_KEY   = "pos_device_name";
+  const DEVICE_KEY = "pos_device_name";
   const PRODUCTS_KEY = "pos_products_fuwafuwa_v1";
-  const QUEUE_KEY    = "pos_queue_fuwafuwa_v1";
+  const QUEUE_KEY = "pos_queue_fuwafuwa_v1";
+  const NOTIFY_EMAIL_KEY = "pos_notify_email_fuwafuwa_v1";
 
   const DEFAULT_PRODUCTS = [
-    { key:"p10", name:"10分", price:500,  refundable:true },
+    { key:"p10", name:"10分", price:500, refundable:true },
     { key:"p30", name:"30分", price:1000, refundable:true }
   ];
 
@@ -177,6 +183,10 @@
   }
 
   let DEVICE_NAME = getDeviceName();
+
+  function getNotifyEmail(){
+    return localStorage.getItem(NOTIFY_EMAIL_KEY) || "";
+  }
 
   function loadProducts(){
     try{
@@ -235,23 +245,23 @@
   window.addEventListener("online", flushQueue);
   window.addEventListener("load", flushQueue);
 
-  const itemsEl    = document.getElementById("items");
-  const pTotalEl   = document.getElementById("pTotal");
-  const pListEl    = document.getElementById("pList");
-  const totalEl    = document.getElementById("total");
-  const countsEl   = document.getElementById("counts");
-  const dayInfoEl  = document.getElementById("dayInfo");
-  const deviceLbl  = document.getElementById("deviceLabel");
+  const itemsEl = document.getElementById("items");
+  const pTotalEl = document.getElementById("pTotal");
+  const pListEl = document.getElementById("pList");
+  const totalEl = document.getElementById("total");
+  const countsEl = document.getElementById("counts");
+  const dayInfoEl = document.getElementById("dayInfo");
+  const deviceLbl = document.getElementById("deviceLabel");
   const confirmBtn = document.getElementById("confirmBtn");
-  const clearBtn   = document.getElementById("clearBtn");
+  const clearBtn = document.getElementById("clearBtn");
   const tapToastEl = document.getElementById("tapToast");
 
-  let unlocked     = false;
-  let pending      = {};
-  let total        = 0;
-  let counts       = {};
-  let toastTimer   = null;
-  let confirmBusy  = false;
+  let unlocked = false;
+  let pending = {};
+  let total = 0;
+  let counts = {};
+  let toastTimer = null;
+  let confirmBusy = false;
   let yen10000Busy = false;
 
   function resetCounts(){
@@ -305,7 +315,8 @@
       ts: Date.now(),
       device: DEVICE_NAME,
       page: "ふわふわレジ",
-      message: "一万円札が使用されました"
+      message: "一万円札が使用されました",
+      notifyEmail: getNotifyEmail()
     };
 
     function done(text){
@@ -383,9 +394,9 @@
       return;
     }
 
-    const key  = b.dataset.key;
+    const key = b.dataset.key;
     const sign = Number(b.dataset.sign || 0);
-    const p    = PRODUCTS.find(x => x.key === key);
+    const p = PRODUCTS.find(x => x.key === key);
     if(!p || !sign) return;
 
     if(!pending[key]){
@@ -540,14 +551,15 @@
       (items.length > 3 ? `<div class="lineItem">…他${items.length-3}件</div>` : "");
   }
 
-  const adminBtn      = document.getElementById("adminBtn");
-  const adminModal    = document.getElementById("adminModal");
-  const adminClose    = document.getElementById("adminClose");
-  const adminCancel   = document.getElementById("adminCancel");
-  const adminSave     = document.getElementById("adminSave");
-  const adminAdd      = document.getElementById("adminAdd");
-  const adminReset    = document.getElementById("adminReset");
-  const adminDevice   = document.getElementById("adminDevice");
+  const adminBtn = document.getElementById("adminBtn");
+  const adminModal = document.getElementById("adminModal");
+  const adminClose = document.getElementById("adminClose");
+  const adminCancel = document.getElementById("adminCancel");
+  const adminSave = document.getElementById("adminSave");
+  const adminAdd = document.getElementById("adminAdd");
+  const adminReset = document.getElementById("adminReset");
+  const adminDevice = document.getElementById("adminDevice");
+  const adminNotifyEmail = document.getElementById("adminNotifyEmail");
   const adminProducts = document.getElementById("adminProducts");
 
   let adminDraft = null;
@@ -561,10 +573,12 @@
 
     adminDraft = {
       device: DEVICE_NAME,
+      notifyEmail: getNotifyEmail(),
       products: PRODUCTS.map(p => ({...p}))
     };
 
     adminDevice.value = adminDraft.device;
+    adminNotifyEmail.value = adminDraft.notifyEmail;
     renderAdminProducts();
     adminModal.style.display = "block";
     showToast("管理者メニューを開きました");
@@ -658,7 +672,11 @@
     pressFx(adminSave);
 
     const newDevice = adminDevice.value.trim() || "未設定";
+    const newNotifyEmail = adminNotifyEmail.value.trim();
+
     localStorage.setItem(DEVICE_KEY, newDevice);
+    localStorage.setItem(NOTIFY_EMAIL_KEY, newNotifyEmail);
+
     DEVICE_NAME = newDevice;
 
     PRODUCTS = adminDraft.products.map((p,i)=>({
