@@ -9,317 +9,84 @@
   <meta name="theme-color" content="#111111">
 
   <style>
-    :root{
-      --barH: 170px;
-      --pressScale: .96;
-    }
-
+    :root{ --barH:170px; --pressScale:.96; }
     *{ box-sizing:border-box; }
-
-    html,body{
-      margin:0;
-      padding:0;
-      -webkit-text-size-adjust:100%;
-      touch-action:manipulation;
-    }
-
+    html,body{ margin:0; padding:0; -webkit-text-size-adjust:100%; touch-action:manipulation; }
     body{
-      font-family:-apple-system, system-ui, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-      background:#fafafa;
-      overscroll-behavior:contain;
-      user-select:none;
-      -webkit-user-select:none;
-      -webkit-touch-callout:none;
+      font-family:-apple-system,system-ui,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+      background:#fafafa; overscroll-behavior:contain;
+      user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;
     }
-
-    a.back{
-      display:inline-block;
-      margin:10px 12px 0;
-      color:#1e88e5;
-      text-decoration:none;
-      font-weight:900;
-    }
-
-    h1{
-      margin:0;
-      padding:12px 14px 8px;
-      font-size:18px;
-    }
-
-    #deviceLabel{
-      padding:0 14px 8px;
-      font-weight:900;
-      font-size:18px;
-      color:#111;
-    }
-
-    .app{
-      height:100svh;
-      display:flex;
-      flex-direction:column;
-    }
-
-    .scroll{
-      flex:1;
-      overflow:auto;
-      -webkit-overflow-scrolling:touch;
-      padding:0 12px calc(var(--barH) + 16px);
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:4px;
-    }
-
-    .card{
-      background:#fff;
-      border:1px solid #ddd;
-      border-radius:12px;
-      padding:10px;
-    }
-
-    .name{
-      font-size:14px;
-      font-weight:900;
-      text-align:center;
-      margin-bottom:8px;
-    }
-
+    a.back{ display:inline-block; margin:10px 12px 0; color:#1e88e5; text-decoration:none; font-weight:900; }
+    h1{ margin:0; padding:12px 14px 8px; font-size:18px; }
+    #deviceLabel{ padding:0 14px 8px; font-weight:900; font-size:18px; color:#111; }
+    .app{ height:100svh; display:flex; flex-direction:column; }
+    .scroll{ flex:1; overflow:auto; -webkit-overflow-scrolling:touch; padding:0 12px calc(var(--barH) + 16px); }
+    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px; }
+    .card{ background:#fff; border:1px solid #ddd; border-radius:12px; padding:10px; }
+    .name{ font-size:14px; font-weight:900; text-align:center; margin-bottom:8px; }
     button{
-      width:100%;
-      border:0;
-      border-radius:12px;
-      font-weight:900;
-      cursor:pointer;
-      -webkit-tap-highlight-color:transparent;
-      touch-action:manipulation;
-      appearance:none;
-      -webkit-appearance:none;
-      transform:translateZ(0);
-      transition:transform .06s ease, filter .12s ease, box-shadow .12s ease, opacity .12s ease;
+      width:100%; border:0; border-radius:12px; font-weight:900; cursor:pointer;
+      -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+      appearance:none; -webkit-appearance:none; transform:translateZ(0);
+      transition:transform .06s ease,filter .12s ease,box-shadow .12s ease,opacity .12s ease;
       box-shadow:0 2px 6px rgba(0,0,0,.08);
     }
-
-    button:active,
-    button.pressed{
+    button:active,button.pressed{
       transform:scale(var(--pressScale));
       filter:brightness(.88);
       box-shadow:0 1px 2px rgba(0,0,0,.14) inset;
     }
-
-    button:disabled{
-      opacity:.6;
-      cursor:default;
-    }
-
-    .sale{
-      background:#1e88e5;
-      color:#fff;
-      font-size:30px;
-      padding:26px 10px;
-      border-radius:16px;
-      min-height:96px;
-    }
-
-    .refund{
-      background:#e53935;
-      color:#fff;
-      font-size:16px;
-      padding:12px 10px;
-      margin-top:8px;
-      min-height:52px;
-    }
-
-    .summary{
-      margin-top:14px;
-      background:#111;
-      color:#fff;
-      border-radius:14px;
-      padding:14px;
-    }
-
-    .total{
-      font-size:28px;
-      font-weight:900;
-      margin-top:4px;
-    }
-
-    .small{
-      font-size:13px;
-      opacity:.9;
-      margin-top:6px;
-    }
-
-    .row{
-      display:flex;
-      gap:10px;
-      margin-top:10px;
-      flex-wrap:wrap;
-    }
-
-    .ghost{
-      background:#f2f2f2;
-      color:#111;
-      padding:12px 10px;
-      border-radius:12px;
-      font-size:14px;
-      font-weight:900;
-      min-height:48px;
-    }
-
+    button:disabled{ opacity:.6; cursor:default; }
+    .sale{ background:#1e88e5; color:#fff; font-size:30px; padding:26px 10px; border-radius:16px; min-height:96px; }
+    .refund{ background:#e53935; color:#fff; font-size:16px; padding:12px 10px; margin-top:8px; min-height:52px; }
+    .summary{ margin-top:14px; background:#111; color:#fff; border-radius:14px; padding:14px; }
+    .total{ font-size:28px; font-weight:900; margin-top:4px; }
+    .small{ font-size:13px; opacity:.9; margin-top:6px; }
+    .row{ display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+    .ghost{ background:#f2f2f2; color:#111; padding:12px 10px; border-radius:12px; font-size:14px; font-weight:900; min-height:48px; }
     .yen10000{
-      background:#ff9800;
-      color:#111;
-      font-size:22px;
-      font-weight:900;
-      padding:26px 10px;
-      border-radius:16px;
-      min-height:96px;
-      border:3px solid #fff3cd;
-      box-shadow:0 2px 6px rgba(0,0,0,.08);
+      background:#ff9800; color:#111; font-size:22px; font-weight:900;
+      padding:26px 10px; border-radius:16px; min-height:96px;
+      border:3px solid #fff3cd; box-shadow:0 2px 6px rgba(0,0,0,.08);
     }
-
     .bar{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      z-index:99999;
-      background:#fff;
-      border-top:1px solid #ddd;
-      box-shadow:0 -6px 16px rgba(0,0,0,.15);
+      position:fixed; left:0; right:0; bottom:0; z-index:99999;
+      background:#fff; border-top:1px solid #ddd; box-shadow:0 -6px 16px rgba(0,0,0,.15);
       padding:10px 12px calc(10px + env(safe-area-inset-bottom));
-      height:var(--barH);
+      height:var(--barH); box-sizing:border-box;
     }
-
-    .barTop{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:8px;
-    }
-
-    .barTitle{
-      font-size:14px;
-      font-weight:900;
-    }
-
-    .barTotal{
-      font-size:18px;
-      font-weight:900;
-    }
-
-    .list{
-      max-height:70px;
-      overflow:auto;
-      border-top:1px dashed #ddd;
-      padding-top:6px;
-      font-size:13px;
-    }
-
-    .lineItem{
-      display:flex;
-      justify-content:space-between;
-      padding:4px 0;
-    }
-
-    .barBtns{
-      display:flex;
-      gap:10px;
-      margin-top:8px;
-    }
-
-    .confirm{
-      flex:1;
-      background:#2e7d32;
-      color:#fff;
-      font-size:18px;
-      padding:14px;
-      border-radius:14px;
-      min-height:54px;
-    }
-
-    .clear{
-      width:34%;
-      background:#616161;
-      color:#fff;
-      font-size:15px;
-      padding:14px;
-      border-radius:14px;
-      min-height:54px;
-    }
-
-    .hint{
-      font-size:12px;
-      color:#666;
-      margin-top:6px;
-    }
-
+    .barTop{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .barTitle{ font-size:14px; font-weight:900; }
+    .barTotal{ font-size:18px; font-weight:900; }
+    .list{ max-height:70px; overflow:auto; border-top:1px dashed #ddd; padding-top:6px; font-size:13px; }
+    .lineItem{ display:flex; justify-content:space-between; padding:4px 0; }
+    .barBtns{ display:flex; gap:10px; margin-top:8px; }
+    .confirm{ flex:1; background:#2e7d32; color:#fff; font-size:18px; padding:14px; border-radius:14px; min-height:54px; }
+    .clear{ width:34%; background:#616161; color:#fff; font-size:15px; padding:14px; border-radius:14px; min-height:54px; }
+    .hint{ font-size:12px; color:#666; margin-top:6px; }
     #tapToastWrap{
-      position:fixed;
-      left:0;
-      right:0;
-      top:12px;
-      display:flex;
-      justify-content:center;
-      pointer-events:none;
-      z-index:1000000;
-      padding:0 12px;
+      position:fixed; left:0; right:0; top:12px;
+      display:flex; justify-content:center;
+      pointer-events:none; z-index:1000000; padding:0 12px;
     }
-
     .tapToast{
-      background:rgba(17,17,17,.92);
-      color:#fff;
-      font-weight:900;
-      font-size:15px;
-      padding:10px 14px;
-      border-radius:999px;
-      box-shadow:0 8px 20px rgba(0,0,0,.2);
-      transform:translateY(-8px) scale(.96);
-      opacity:0;
-      transition:opacity .16s ease, transform .16s ease;
-      max-width:92vw;
-      text-align:center;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      background:rgba(17,17,17,.92); color:#fff; font-weight:900; font-size:15px;
+      padding:10px 14px; border-radius:999px; box-shadow:0 8px 20px rgba(0,0,0,.2);
+      transform:translateY(-8px) scale(.96); opacity:0;
+      transition:opacity .16s ease,transform .16s ease;
+      max-width:92vw; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-
-    .tapToast.show{
-      opacity:1;
-      transform:translateY(0) scale(1);
-    }
-
-    .pulseFlash{
-      position:absolute;
-      inset:0;
-      border-radius:inherit;
-      background:rgba(255,255,255,.22);
-      opacity:0;
-      pointer-events:none;
-    }
-
-    .hasFlash{
-      position:relative;
-      overflow:hidden;
-    }
-
-    .hasFlash.flash .pulseFlash{
-      animation:flashAnim .22s ease;
-    }
-
-    @keyframes flashAnim{
-      0%{ opacity:.55; }
-      100%{ opacity:0; }
-    }
+    .tapToast.show{ opacity:1; transform:translateY(0) scale(1); }
+    .pulseFlash{ position:absolute; inset:0; border-radius:inherit; background:rgba(255,255,255,.22); opacity:0; pointer-events:none; }
+    .hasFlash{ position:relative; overflow:hidden; }
+    .hasFlash.flash .pulseFlash{ animation:flashAnim .22s ease; }
+    @keyframes flashAnim{ 0%{ opacity:.55; } 100%{ opacity:0; } }
   </style>
 </head>
 
 <body>
 <a class="back" href="./index.html">← メニューに戻る</a>
-
 <div id="tapToastWrap"><div id="tapToast" class="tapToast"></div></div>
 
 <div class="app">
@@ -373,14 +140,20 @@
     <div style="margin-top:10px; padding:10px; border:1px solid #eee; border-radius:12px;">
       <div style="font-weight:900; margin-bottom:6px;">端末名（この端末）</div>
       <input id="adminDevice" style="width:100%; padding:10px; font-size:16px; border-radius:10px; border:1px solid #ccc;" />
-      <div style="font-size:12px; color:#666; margin-top:6px;">例：受付A / 受付B / ふわふわ</div>
+      <div style="font-size:12px; color:#666; margin-top:6px;">例：受付A / 受付B / 恐竜受付</div>
+    </div>
+
+    <div style="margin-top:10px; padding:10px; border:1px solid #eee; border-radius:12px;">
+      <div style="font-weight:900; margin-bottom:6px;">一万円札通知メール先</div>
+      <input id="adminNotifyEmail" type="email"
+        style="width:100%; padding:10px; font-size:16px; border-radius:10px; border:1px solid #ccc;"
+        placeholder="例：fuwafuwakids555@gmail.com" />
+      <div style="font-size:12px; color:#666; margin-top:6px;">空欄の場合はGAS側の標準メール先に送信</div>
     </div>
 
     <div style="margin-top:10px; padding:10px; border:1px solid #eee; border-radius:12px;">
       <div style="font-weight:900; margin-bottom:6px;">商品（名前・価格・返金）</div>
-      <div style="font-size:12px; color:#666; margin-bottom:8px;">
-        ※このページ（恐竜レジ）だけに保存されます
-      </div>
+      <div style="font-size:12px; color:#666; margin-bottom:8px;">※このページ（恐竜レジ）だけに保存されます</div>
 
       <div id="adminProducts"></div>
 
@@ -407,17 +180,17 @@
   const ADMIN_PASSWORD = "4181";
   const PASSWORD = "7777";
 
-  const DEVICE_KEY    = "pos_device_name";
-  const PRODUCTS_KEY  = "pos_products_entry_v1";
-  const QUEUE_KEY     = "pos_queue_entry_v1";
+  const DEVICE_KEY = "pos_device_name";
+  const PRODUCTS_KEY = "pos_products_entry_v1";
+  const QUEUE_KEY = "pos_queue_entry_v1";
+  const NOTIFY_EMAIL_KEY = "pos_notify_email_dinosaur_v1";
 
-  // お散歩ダイナソーのキー（このキーの隣に一万円札カードを表示）
   const WALK_KEY = "walk";
 
   const DEFAULT_PRODUCTS = [
-    { key:"entry", name:"入場料",          price:600, refundable:true },
-    { key:"goods", name:"グッズ",           price:300, refundable:true },
-    { key:"walk",  name:"お散歩ダイナソー", price:700, refundable:true }
+    { key:"entry", name:"入場料", price:600, refundable:true },
+    { key:"goods", name:"グッズ", price:300, refundable:true },
+    { key:"walk", name:"お散歩ダイナソー", price:700, refundable:true }
   ];
 
   function deepClone(x){ return JSON.parse(JSON.stringify(x)); }
@@ -425,7 +198,7 @@
   function getDeviceName(){
     let name = localStorage.getItem(DEVICE_KEY);
     if(!name){
-      name = prompt("このレジの名前を入力してください\n例：受付A / 受付B / ふわふわ");
+      name = prompt("このレジの名前を入力してください\n例：受付A / 受付B / 恐竜受付");
       if(!name) name = "未設定";
       localStorage.setItem(DEVICE_KEY, name);
     }
@@ -434,17 +207,22 @@
 
   let DEVICE_NAME = getDeviceName();
 
+  function getNotifyEmail(){
+    return localStorage.getItem(NOTIFY_EMAIL_KEY) || "";
+  }
+
   function loadProducts(){
     try{
       const raw = localStorage.getItem(PRODUCTS_KEY);
       if(!raw) return deepClone(DEFAULT_PRODUCTS);
       const arr = JSON.parse(raw);
       if(!Array.isArray(arr) || !arr.length) return deepClone(DEFAULT_PRODUCTS);
+
       return arr.map((p,i)=>({
         key: (p.key && String(p.key)) || `p${i+1}`,
         name: (p.name && String(p.name)) || "商品",
         price: Number(p.price) || 0,
-        refundable: p.refundable !== false,
+        refundable: p.refundable !== false
       }));
     }catch(e){
       return deepClone(DEFAULT_PRODUCTS);
@@ -457,27 +235,26 @@
 
   let PRODUCTS = loadProducts();
 
-  const loadQueue = () => {
-    try{ return JSON.parse(localStorage.getItem(QUEUE_KEY)||"[]"); }
+  function loadQueue(){
+    try{ return JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); }
     catch(e){ return []; }
-  };
+  }
 
-  const saveQueue = (q) => {
+  function saveQueue(q){
     try{ localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); }
     catch(e){}
-  };
+  }
 
-  const enqueueRows = (rows) => {
-    if(!rows?.length) return;
+  function enqueueRows(rows){
+    if(!rows || !rows.length) return;
     const q = loadQueue();
     q.push(...rows);
     saveQueue(q);
-  };
+  }
 
   function flushQueue(){
     const q = loadQueue();
-    if(!q.length) return;
-    if(!navigator.onLine) return;
+    if(!q.length || !navigator.onLine) return;
 
     fetch(GAS_WEBAPP_URL,{
       method:"POST",
@@ -491,28 +268,28 @@
   window.addEventListener("online", flushQueue);
   window.addEventListener("load", flushQueue);
 
-  const itemsEl    = document.getElementById("items");
-  const pTotalEl   = document.getElementById("pTotal");
-  const pListEl    = document.getElementById("pList");
-  const totalEl    = document.getElementById("total");
-  const countsEl   = document.getElementById("counts");
-  const dayInfoEl  = document.getElementById("dayInfo");
-  const deviceLbl  = document.getElementById("deviceLabel");
+  const itemsEl = document.getElementById("items");
+  const pTotalEl = document.getElementById("pTotal");
+  const pListEl = document.getElementById("pList");
+  const totalEl = document.getElementById("total");
+  const countsEl = document.getElementById("counts");
+  const dayInfoEl = document.getElementById("dayInfo");
+  const deviceLbl = document.getElementById("deviceLabel");
   const confirmBtn = document.getElementById("confirmBtn");
-  const clearBtn   = document.getElementById("clearBtn");
+  const clearBtn = document.getElementById("clearBtn");
   const tapToastEl = document.getElementById("tapToast");
 
-  let unlocked     = false;
-  let pending      = {};
-  let total        = 0;
-  let counts       = {};
-  let toastTimer   = null;
-  let confirmBusy  = false;
+  let unlocked = false;
+  let pending = {};
+  let total = 0;
+  let counts = {};
+  let toastTimer = null;
+  let confirmBusy = false;
   let yen10000Busy = false;
 
   function resetCounts(){
     counts = {};
-    PRODUCTS.forEach(p=>counts[p.key]=0);
+    PRODUCTS.forEach(p => counts[p.key] = 0);
   }
   resetCounts();
 
@@ -524,9 +301,7 @@
     tapToastEl.textContent = text;
     tapToastEl.classList.add("show");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=>{
-      tapToastEl.classList.remove("show");
-    }, 520);
+    toastTimer = setTimeout(()=>tapToastEl.classList.remove("show"), 520);
   }
 
   function pressFx(el){
@@ -548,21 +323,24 @@
     });
   }
 
-  // ── 一万円札の処理 ──────────────────────────────────
   function handleYen10000Click(){
     if(yen10000Busy) return;
     if(!confirm("一万円札の通知を送信しますか？")) return;
 
     yen10000Busy = true;
     const btn = document.getElementById("yen10000Btn");
-    if(btn){ btn.disabled = true; btn.textContent = "通知中…"; }
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = "通知中…";
+    }
 
     const data = {
       type: "yen10000",
       ts: Date.now(),
       device: DEVICE_NAME,
       page: "恐竜レジ",
-      message: "一万円札が使用されました"
+      message: "一万円札が使用されました",
+      notifyEmail: getNotifyEmail()
     };
 
     function done(text){
@@ -570,7 +348,10 @@
       vibrate(30);
       yen10000Busy = false;
       const b = document.getElementById("yen10000Btn");
-      if(b){ b.disabled = false; b.textContent = "💴 通知"; }
+      if(b){
+        b.disabled = false;
+        b.textContent = "💴 通知";
+      }
     }
 
     if(navigator.onLine){
@@ -595,7 +376,6 @@
     }
   }
 
-  // ── 商品グリッド描画 ────────────────────────────────
   function renderProducts(){
     itemsEl.innerHTML = "";
 
@@ -609,7 +389,6 @@
       `;
       itemsEl.appendChild(d);
 
-      // お散歩ダイナソーの直後に一万円札カードを挿入
       if(p.key === WALK_KEY){
         const yen = document.createElement("div");
         yen.className = "card";
@@ -624,7 +403,6 @@
     attachButtonPressFeedback(itemsEl);
   }
 
-  // ── グリッドのポインター／クリック ──────────────────
   itemsEl.addEventListener("pointerdown", (e)=>{
     const b = e.target.closest("button");
     if(!b) return;
@@ -635,30 +413,33 @@
     const b = e.target.closest("button");
     if(!b) return;
 
-    // 一万円札ボタン
     if(b.id === "yen10000Btn"){
       handleYen10000Click();
       return;
     }
 
-    const key  = b.dataset.key;
+    const key = b.dataset.key;
     const sign = Number(b.dataset.sign || 0);
-    const p    = PRODUCTS.find(x=>x.key===key);
+    const p = PRODUCTS.find(x => x.key === key);
     if(!p || !sign) return;
 
-    if(!pending[key]) pending[key] = { name:p.name, price:Number(p.price)||0, qty:0 };
+    if(!pending[key]){
+      pending[key] = { name:p.name, price:Number(p.price)||0, qty:0 };
+    }
+
     pending[key].qty += sign;
 
-    if(pending[key].qty === 0) delete pending[key];
+    if(pending[key].qty === 0){
+      delete pending[key];
+    }
 
     vibrate(sign > 0 ? 15 : 22);
     showToast(sign > 0 ? `追加：${p.name}` : `返金：${p.name}`);
     renderPending();
   });
 
-  // ── 確定ボタン ──────────────────────────────────────
-  confirmBtn.addEventListener("pointerdown", ()=> pressFx(confirmBtn));
-  clearBtn.addEventListener("pointerdown",   ()=> pressFx(clearBtn));
+  confirmBtn.addEventListener("pointerdown", ()=>pressFx(confirmBtn));
+  clearBtn.addEventListener("pointerdown", ()=>pressFx(clearBtn));
 
   confirmBtn.addEventListener("click", ()=>{
     if(confirmBusy) return;
@@ -675,13 +456,14 @@
     confirmBtn.textContent = "送信中…";
 
     const nowTs = Date.now();
-    const rows  = [];
+    const rows = [];
 
     keys.forEach(k=>{
-      const it  = pending[k];
+      const it = pending[k];
       const sub = it.price * it.qty;
 
       total += sub;
+
       if(counts[k] == null) counts[k] = 0;
       counts[k] += it.qty;
 
@@ -727,10 +509,10 @@
     vibrate(14);
   });
 
-  // ── 売上表示・非表示 ────────────────────────────────
   document.getElementById("unlock").addEventListener("click", (e)=>{
     pressFx(e.currentTarget);
     const pw = prompt("パスワード");
+
     if(pw === PASSWORD){
       unlocked = true;
       render();
@@ -751,10 +533,10 @@
     deviceLbl.textContent = "端末： " + DEVICE_NAME;
 
     if(unlocked){
-      totalEl.textContent  = `¥${total.toLocaleString()}`;
-      countsEl.textContent = PRODUCTS.map(p=>`${p.name}:${counts[p.key]||0}回`).join(" / ");
+      totalEl.textContent = `¥${total.toLocaleString()}`;
+      countsEl.textContent = PRODUCTS.map(p => `${p.name}:${counts[p.key]||0}回`).join(" / ");
     }else{
-      totalEl.textContent  = "＊＊＊＊";
+      totalEl.textContent = "＊＊＊＊";
       countsEl.textContent = "（非表示）";
     }
 
@@ -764,51 +546,63 @@
 
   function renderPending(){
     const items = Object.values(pending);
+
     if(!items.length){
       pTotalEl.textContent = "—";
-      pListEl.innerHTML    = "未選択";
+      pListEl.innerHTML = "未選択";
       return;
     }
 
-    let q = 0, y = 0;
-    items.forEach(it=>{ q += Math.abs(it.qty); y += it.price * it.qty; });
+    let q = 0;
+    let y = 0;
 
-    const sign = (y < 0) ? "-" : "";
+    items.forEach(it=>{
+      q += Math.abs(it.qty);
+      y += it.price * it.qty;
+    });
+
+    const sign = y < 0 ? "-" : "";
     pTotalEl.textContent = `${q}点 合計 ${sign}¥${Math.abs(y).toLocaleString()}`;
 
     const shown = items.slice(0,3);
+
     pListEl.innerHTML =
       shown.map(it=>{
         const sub = it.price * it.qty;
-        const sgn = (sub < 0) ? "-" : "";
+        const sgn = sub < 0 ? "-" : "";
         return `<div class="lineItem"><div>${escapeHtml(it.name)}×${it.qty}</div><div>${sgn}¥${Math.abs(sub).toLocaleString()}</div></div>`;
       }).join("") +
       (items.length > 3 ? `<div class="lineItem">…他${items.length-3}件</div>` : "");
   }
 
-  // ── 管理者モーダル ──────────────────────────────────
-  const adminBtn      = document.getElementById("adminBtn");
-  const adminModal    = document.getElementById("adminModal");
-  const adminClose    = document.getElementById("adminClose");
-  const adminCancel   = document.getElementById("adminCancel");
-  const adminSave     = document.getElementById("adminSave");
-  const adminAdd      = document.getElementById("adminAdd");
-  const adminReset    = document.getElementById("adminReset");
-  const adminDevice   = document.getElementById("adminDevice");
+  const adminBtn = document.getElementById("adminBtn");
+  const adminModal = document.getElementById("adminModal");
+  const adminClose = document.getElementById("adminClose");
+  const adminCancel = document.getElementById("adminCancel");
+  const adminSave = document.getElementById("adminSave");
+  const adminAdd = document.getElementById("adminAdd");
+  const adminReset = document.getElementById("adminReset");
+  const adminDevice = document.getElementById("adminDevice");
+  const adminNotifyEmail = document.getElementById("adminNotifyEmail");
   const adminProducts = document.getElementById("adminProducts");
 
   let adminDraft = null;
 
   function openAdmin(){
     const pw = prompt("管理者パスワード");
-    if(pw !== ADMIN_PASSWORD) return alert("パスワードが違います");
+    if(pw !== ADMIN_PASSWORD){
+      alert("パスワードが違います");
+      return;
+    }
 
     adminDraft = {
-      device:   DEVICE_NAME,
-      products: PRODUCTS.map(p=>({...p}))
+      device: DEVICE_NAME,
+      notifyEmail: getNotifyEmail(),
+      products: PRODUCTS.map(p => ({...p}))
     };
 
     adminDevice.value = adminDraft.device;
+    adminNotifyEmail.value = adminDraft.notifyEmail;
     renderAdminProducts();
     adminModal.style.display = "block";
     showToast("管理者メニューを開きました");
@@ -821,6 +615,7 @@
 
   function renderAdminProducts(){
     adminProducts.innerHTML = "";
+
     adminDraft.products.forEach((p, idx)=>{
       const row = document.createElement("div");
       row.style.cssText = "display:grid; grid-template-columns:1.6fr 1fr .9fr .6fr; gap:8px; align-items:center; margin-top:8px;";
@@ -836,6 +631,7 @@
       `;
       adminProducts.appendChild(row);
     });
+
     attachButtonPressFeedback(adminProducts);
   }
 
@@ -843,7 +639,8 @@
     const t = e.target;
     const i = Number(t.dataset.i);
     if(!adminDraft || !Number.isFinite(i)) return;
-    if(t.dataset.f === "name")  adminDraft.products[i].name  = t.value;
+
+    if(t.dataset.f === "name") adminDraft.products[i].name = t.value;
     if(t.dataset.f === "price") adminDraft.products[i].price = Number(t.value || 0);
   });
 
@@ -851,7 +648,10 @@
     const t = e.target;
     const i = Number(t.dataset.i);
     if(!adminDraft || !Number.isFinite(i)) return;
-    if(t.dataset.f === "refundable") adminDraft.products[i].refundable = !!t.checked;
+
+    if(t.dataset.f === "refundable"){
+      adminDraft.products[i].refundable = !!t.checked;
+    }
   });
 
   adminProducts.addEventListener("pointerdown", (e)=>{
@@ -863,15 +663,22 @@
   adminProducts.addEventListener("click", (e)=>{
     const btn = e.target.closest("button");
     if(!btn) return;
+
     const di = btn.dataset.del;
     if(di == null) return;
+
     adminDraft.products.splice(Number(di), 1);
     renderAdminProducts();
   });
 
   adminAdd.onclick = ()=>{
     pressFx(adminAdd);
-    adminDraft.products.push({ key:`p${Date.now()}`, name:"新商品", price:0, refundable:true });
+    adminDraft.products.push({
+      key:`p${Date.now()}`,
+      name:"新商品",
+      price:0,
+      refundable:true
+    });
     renderAdminProducts();
     showToast("商品を追加しました");
   };
@@ -879,6 +686,7 @@
   adminReset.onclick = ()=>{
     pressFx(adminReset);
     if(!confirm("恐竜レジを初期設定に戻しますか？")) return;
+
     adminDraft.products = deepClone(DEFAULT_PRODUCTS);
     renderAdminProducts();
     showToast("初期設定に戻しました");
@@ -888,14 +696,18 @@
     pressFx(adminSave);
 
     const newDevice = adminDevice.value.trim() || "未設定";
+    const newNotifyEmail = adminNotifyEmail.value.trim();
+
     localStorage.setItem(DEVICE_KEY, newDevice);
+    localStorage.setItem(NOTIFY_EMAIL_KEY, newNotifyEmail);
+
     DEVICE_NAME = newDevice;
 
     PRODUCTS = adminDraft.products.map((p,i)=>({
-      key:       (p.key  && String(p.key))        || `p${i+1}`,
-      name:      (p.name && String(p.name).trim()) || "商品",
-      price:     Number(p.price) || 0,
-      refundable: p.refundable !== false,
+      key: (p.key && String(p.key)) || `p${i+1}`,
+      name: (p.name && String(p.name).trim()) || "商品",
+      price: Number(p.price) || 0,
+      refundable: p.refundable !== false
     }));
 
     saveProducts(PRODUCTS);
@@ -910,11 +722,21 @@
     alert("保存しました（恐竜レジ）");
   };
 
-  adminBtn.onclick    = (e)=>{ pressFx(e.currentTarget); openAdmin(); };
-  adminClose.onclick  = (e)=>{ pressFx(e.currentTarget); closeAdmin(); };
-  adminCancel.onclick = (e)=>{ pressFx(e.currentTarget); closeAdmin(); };
+  adminBtn.onclick = (e)=>{
+    pressFx(e.currentTarget);
+    openAdmin();
+  };
 
-  // ── ユーティリティ ──────────────────────────────────
+  adminClose.onclick = (e)=>{
+    pressFx(e.currentTarget);
+    closeAdmin();
+  };
+
+  adminCancel.onclick = (e)=>{
+    pressFx(e.currentTarget);
+    closeAdmin();
+  };
+
   function escapeHtml(s){
     return String(s)
       .replaceAll("&","&amp;")
@@ -924,9 +746,10 @@
       .replaceAll("'","&#039;");
   }
 
-  function escapeAttr(s){ return escapeHtml(s); }
+  function escapeAttr(s){
+    return escapeHtml(s);
+  }
 
-  // ── 初期化 ──────────────────────────────────────────
   attachButtonPressFeedback(document);
   renderProducts();
   render();
