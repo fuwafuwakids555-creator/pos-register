@@ -185,8 +185,9 @@
   let DEVICE_NAME = getDeviceName();
 
   function getNotifyEmail(){
-    return localStorage.getItem(NOTIFY_EMAIL_KEY) || "";
-  }
+  return localStorage.getItem(NOTIFY_EMAIL_KEY)
+      || "fuwafuwakids555@gmail.com";
+}
 
   function loadProducts(){
     try{
