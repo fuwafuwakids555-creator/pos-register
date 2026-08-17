@@ -50,6 +50,11 @@
       padding:26px 10px; border-radius:16px; min-height:96px;
       border:3px solid #fff3cd; box-shadow:0 2px 6px rgba(0,0,0,.08);
     }
+    .ownerCall{
+      background:#673ab7; color:#fff; font-size:22px; font-weight:900;
+      padding:26px 10px; border-radius:16px; min-height:96px;
+      border:3px solid #ede7f6; box-shadow:0 2px 6px rgba(0,0,0,.08);
+    }
     .bar{
       position:fixed; left:0; right:0; bottom:0; z-index:99999;
       background:#fff; border-top:1px solid #ddd; box-shadow:0 -6px 16px rgba(0,0,0,.15);
@@ -287,6 +292,7 @@
   let toastTimer = null;
   let confirmBusy = false;
   let yen10000Busy = false;
+  let ownerCallBusy = false;
 
   function resetCounts(){
     counts = {};
@@ -331,7 +337,7 @@
     const btn = document.getElementById("yen10000Btn");
     if(btn){
       btn.disabled = true;
-      btn.textContent = "通知中…";
+      btn.textContent = "送信中…";
     }
 
     const data = {
@@ -350,7 +356,7 @@
       const b = document.getElementById("yen10000Btn");
       if(b){
         b.disabled = false;
-        b.textContent = "💴 通知";
+        b.textContent = "一万円札";
       }
     }
 
@@ -362,6 +368,60 @@
       }).then(res=>{
         if(res.ok){
           done("一万円札通知を送信しました");
+        }else{
+          enqueueRows([data]);
+          done("送信失敗のため保存しました");
+        }
+      }).catch(()=>{
+        enqueueRows([data]);
+        done("オフライン保存しました");
+      });
+    }else{
+      enqueueRows([data]);
+      done("オフライン保存しました");
+    }
+  }
+
+  function handleOwnerCallClick(){
+    if(ownerCallBusy) return;
+
+    ownerCallBusy = true;
+    const btn = document.getElementById("ownerCallBtn");
+
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = "送信中…";
+    }
+
+    const data = {
+      type: "owner_call",
+      ts: Date.now(),
+      device: DEVICE_NAME,
+      page: "恐竜レジ",
+      message: "オーナー呼び出しです",
+      notifyEmail: getNotifyEmail()
+    };
+
+    function done(text){
+      showToast(text);
+      vibrate(30);
+      ownerCallBusy = false;
+
+      const b = document.getElementById("ownerCallBtn");
+      if(b){
+        b.disabled = false;
+        b.textContent = "オーナー呼び出し";
+      }
+    }
+
+    if(navigator.onLine){
+      fetch(GAS_WEBAPP_URL,{
+        method:"POST",
+        headers:{ "Content-Type":"text/plain;charset=utf-8" },
+        body: JSON.stringify(data)
+      }).then(res=>{
+        if(res.ok){
+          done("オーナー呼び出しを送信しました");
         }else{
           enqueueRows([data]);
           done("送信失敗のため保存しました");
@@ -394,9 +454,17 @@
         yen.className = "card";
         yen.innerHTML = `
           <div class="name">一万円札</div>
-          <button class="yen10000 hasFlash" id="yen10000Btn">💴 通知<span class="pulseFlash"></span></button>
+          <button class="yen10000 hasFlash" id="yen10000Btn">一万円札<span class="pulseFlash"></span></button>
         `;
         itemsEl.appendChild(yen);
+
+        const owner = document.createElement("div");
+        owner.className = "card";
+        owner.innerHTML = `
+          <div class="name">オーナー呼び出し</div>
+          <button class="ownerCall hasFlash" id="ownerCallBtn">オーナー呼び出し<span class="pulseFlash"></span></button>
+        `;
+        itemsEl.appendChild(owner);
       }
     });
 
@@ -415,6 +483,11 @@
 
     if(b.id === "yen10000Btn"){
       handleYen10000Click();
+      return;
+    }
+
+    if(b.id === "ownerCallBtn"){
+      handleOwnerCallClick();
       return;
     }
 
