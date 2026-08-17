@@ -105,6 +105,23 @@
       <div>売上合計</div>
       <div class="total" id="total">＊＊＊＊</div>
       <div class="small" id="counts">（非表示）</div>
+      <div class="small" id="yenCountView">一万円札：＊＊＊＊</div>
+
+      <div id="yenDateFilter" style="display:none; margin-top:10px; padding:10px; background:#222; border-radius:10px;">
+        <div style="font-weight:900; margin-bottom:6px;">一万円札の日時集計</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <label style="font-size:12px;">開始日時
+            <input id="yenFrom" type="datetime-local"
+              style="width:100%; box-sizing:border-box; margin-top:4px; padding:8px; border-radius:8px; border:1px solid #555;" />
+          </label>
+          <label style="font-size:12px;">終了日時
+            <input id="yenTo" type="datetime-local"
+              style="width:100%; box-sizing:border-box; margin-top:4px; padding:8px; border-radius:8px; border:1px solid #555;" />
+          </label>
+        </div>
+        <button class="ghost" id="yenFilterBtn" style="margin-top:8px;">この日時で集計</button>
+        <div class="small" id="yenRangeResult" style="margin-top:8px;">期間内：0回</div>
+      </div>
 
       <div class="row">
         <button class="ghost" id="unlock">売上を見る</button>
@@ -189,6 +206,7 @@
   const PRODUCTS_KEY = "pos_products_entry_v1";
   const QUEUE_KEY = "pos_queue_entry_v1";
   const NOTIFY_EMAIL_KEY = "pos_notify_email_dinosaur_v1";
+  const YEN10000_LOG_KEY = "pos_yen10000_log_entry_v1";
 
   const WALK_KEY = "walk";
 
@@ -284,6 +302,12 @@
   const confirmBtn = document.getElementById("confirmBtn");
   const clearBtn = document.getElementById("clearBtn");
   const tapToastEl = document.getElementById("tapToast");
+  const yenCountViewEl = document.getElementById("yenCountView");
+  const yenDateFilterEl = document.getElementById("yenDateFilter");
+  const yenFromEl = document.getElementById("yenFrom");
+  const yenToEl = document.getElementById("yenTo");
+  const yenFilterBtn = document.getElementById("yenFilterBtn");
+  const yenRangeResultEl = document.getElementById("yenRangeResult");
 
   let unlocked = false;
   let pending = {};
@@ -330,10 +354,87 @@
     });
   }
 
+  function loadYen10000Log(){
+    try{
+      const raw = JSON.parse(localStorage.getItem(YEN10000_LOG_KEY) || "[]");
+      return Array.isArray(raw) ? raw : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function saveYen10000Log(arr){
+    localStorage.setItem(YEN10000_LOG_KEY, JSON.stringify(arr));
+  }
+
+  function recordYen10000Press(ts){
+    const arr = loadYen10000Log();
+    arr.push({
+      ts: Number(ts || Date.now()),
+      device: DEVICE_NAME
+    });
+    saveYen10000Log(arr);
+  }
+
+  function startOfTodayTs(){
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    return d.getTime();
+  }
+
+  function endOfTodayTs(){
+    const d = new Date();
+    d.setHours(23,59,59,999);
+    return d.getTime();
+  }
+
+  function countYen10000Between(fromTs, toTs){
+    return loadYen10000Log().filter(r => {
+      const ts = Number(r && r.ts);
+      return Number.isFinite(ts) && ts >= fromTs && ts <= toTs;
+    }).length;
+  }
+
+  function toDatetimeLocalValue(ts){
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2,"0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function initYenDateFilter(){
+    yenFromEl.value = toDatetimeLocalValue(startOfTodayTs());
+    yenToEl.value = toDatetimeLocalValue(Date.now());
+    updateYenRangeResult();
+  }
+
+  function updateYenRangeResult(){
+    if(!unlocked) return;
+
+    const fromTs = yenFromEl.value ? new Date(yenFromEl.value).getTime() : startOfTodayTs();
+    const toTs = yenToEl.value ? new Date(yenToEl.value).getTime() : endOfTodayTs();
+
+    if(!Number.isFinite(fromTs) || !Number.isFinite(toTs)){
+      yenRangeResultEl.textContent = "日時を正しく選択してください";
+      return;
+    }
+
+    if(fromTs > toTs){
+      yenRangeResultEl.textContent = "開始日時が終了日時より後になっています";
+      return;
+    }
+
+    const c = countYen10000Between(fromTs, toTs);
+    yenRangeResultEl.textContent = `期間内：${c}回`;
+  }
+
   function handleYen10000Click(){
     if(yen10000Busy) return;
 
     yen10000Busy = true;
+
+    const pressedTs = Date.now();
+    recordYen10000Press(pressedTs);
+
     const btn = document.getElementById("yen10000Btn");
     if(btn){
       btn.disabled = true;
@@ -342,7 +443,7 @@
 
     const data = {
       type: "yen10000",
-      ts: Date.now(),
+      ts: pressedTs,
       device: DEVICE_NAME,
       page: "恐竜レジ",
       message: "一万円札が使用されました",
@@ -588,7 +689,9 @@
 
     if(pw === PASSWORD){
       unlocked = true;
+      yenDateFilterEl.style.display = "block";
       render();
+      updateYenRangeResult();
       showToast("売上を表示しました");
     }else if(pw !== null){
       alert("パスワードが違います");
@@ -598,6 +701,7 @@
   document.getElementById("lock").addEventListener("click", (e)=>{
     pressFx(e.currentTarget);
     unlocked = false;
+    yenDateFilterEl.style.display = "none";
     render();
     showToast("売上を隠しました");
   });
@@ -608,9 +712,13 @@
     if(unlocked){
       totalEl.textContent = `¥${total.toLocaleString()}`;
       countsEl.textContent = PRODUCTS.map(p => `${p.name}:${counts[p.key]||0}回`).join(" / ");
+
+      const todayYenCount = countYen10000Between(startOfTodayTs(), endOfTodayTs());
+      yenCountViewEl.textContent = `一万円札（今日）：${todayYenCount}回`;
     }else{
       totalEl.textContent = "＊＊＊＊";
       countsEl.textContent = "（非表示）";
+      yenCountViewEl.textContent = "一万円札：＊＊＊＊";
     }
 
     const ds = new Date().toLocaleDateString("ja-JP");
@@ -822,6 +930,13 @@
   function escapeAttr(s){
     return escapeHtml(s);
   }
+
+  yenFilterBtn.addEventListener("click", (e)=>{
+    pressFx(e.currentTarget);
+    updateYenRangeResult();
+  });
+
+  initYenDateFilter();
 
   attachButtonPressFeedback(document);
   renderProducts();
