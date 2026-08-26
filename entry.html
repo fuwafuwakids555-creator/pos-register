@@ -92,6 +92,27 @@
     .hasFlash{ position:relative; overflow:hidden; }
     .hasFlash.flash .pulseFlash{ animation:flashAnim .22s ease; }
     @keyframes flashAnim{ 0%{ opacity:.55; } 100%{ opacity:0; } }
+
+    /* 一万円札・両替・オーナー呼び出しを商品カードと同じ高さにする */
+.specialCard{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  height:100%;
+}
+
+.specialCard .yen10000,
+.specialCard .changeCall,
+.specialCard .ownerCall{
+  flex:1;
+  min-height:0;
+  padding:10px 6px;
+  margin:0 !important;
+  font-size:18px;
+  border-radius:12px;
+}
+
+    
   </style>
 </head>
 
@@ -653,55 +674,39 @@
   });
 
 
-  // ② 通常商品のあとに一万円札
-  const yen = document.createElement("div");
-  yen.className = "card";
-  yen.innerHTML = `
-    <div class="name">　　　</div>
-    <button
-      class="yen10000 hasFlash"
-      id="yen10000Btn"
-    >
-      一万円札
-      <span class="pulseFlash"></span>
-    </button>
-  `;
-  itemsEl.appendChild(yen);
+// ② 特殊ボタンを1つの枠にまとめる
+const special = document.createElement("div");
+special.className = "card specialCard";
 
+special.innerHTML = `
+  <button
+    class="yen10000 hasFlash"
+    id="yen10000Btn"
+  >
+    一万円札
+    <span class="pulseFlash"></span>
+  </button>
 
-  // ③ 両替
-  const change = document.createElement("div");
-  change.className = "card";
-  change.innerHTML = `
-    <div class="name">　　　</div>
-    <button
-      class="changeCall hasFlash"
-      id="changeCallBtn"
-    >
-      両替
-      <span class="pulseFlash"></span>
-    </button>
-  `;
-  itemsEl.appendChild(change);
+  <button
+    class="changeCall hasFlash"
+    id="changeCallBtn"
+  >
+    両替
+    <span class="pulseFlash"></span>
+  </button>
 
+  <button
+    class="ownerCall hasFlash"
+    id="ownerCallBtn"
+  >
+    オーナー呼び出し
+    <span class="pulseFlash"></span>
+  </button>
+`;
 
-  // ④ オーナー呼び出し
-  const owner = document.createElement("div");
-  owner.className = "card";
-  owner.innerHTML = `
-    <div class="name">　　　</div>
-    <button
-      class="ownerCall hasFlash"
-      id="ownerCallBtn"
-    >
-      オーナー呼び出し
-      <span class="pulseFlash"></span>
-    </button>
-  `;
-  itemsEl.appendChild(owner);
+itemsEl.appendChild(special);
 
-
-  attachButtonPressFeedback(itemsEl);
+attachButtonPressFeedback(itemsEl);
 }
 
   itemsEl.addEventListener("pointerdown", (e)=>{
