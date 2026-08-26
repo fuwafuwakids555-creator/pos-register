@@ -132,7 +132,7 @@
   ⚠️ 一万円札を受け取ったときは、必ず「一万円札」ボタンを押してください。<br>
   営業終了後に一万円札の枚数を確認します。<br>
   ⚠️ 両替が必要な時は両替ボタンを押してください。<br>
-  ⚠️何かトラブルがあった場合はオーナー呼出しボタンを押してください。 
+  ⚠️何かトラブルがあった場合は責任者呼出しボタンを押してください。 
 </div>
 <a class="back" href="./index.html">← メニューに戻る</a>
 <div id="tapToastWrap"><div id="tapToast" class="tapToast"></div></div>
@@ -543,7 +543,7 @@
       ts: Date.now(),
       device: DEVICE_NAME,
       page: "恐竜レジ",
-      message: "オーナー呼び出しです",
+      message: "責任者呼び出しです",
       notifyEmail: getNotifyEmail()
     };
 
@@ -555,7 +555,7 @@
       const b = document.getElementById("ownerCallBtn");
       if(b){
         b.disabled = false;
-        b.textContent = "オーナー呼び出し";
+        b.textContent = "責任者呼び出し";
       }
     }
 
@@ -566,7 +566,7 @@
         body: JSON.stringify(data)
       }).then(res=>{
         if(res.ok){
-          done("オーナー呼び出しを送信しました");
+          done("責任者呼び出しを送信しました");
         }else{
           enqueueRows([data]);
           done("送信失敗のため保存しました");
@@ -699,7 +699,7 @@ special.innerHTML = `
     class="ownerCall hasFlash"
     id="ownerCallBtn"
   >
-    オーナー呼び出し
+    責任者呼び出し
     <span class="pulseFlash"></span>
   </button>
 `;
