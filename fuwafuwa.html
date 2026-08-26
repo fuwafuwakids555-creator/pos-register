@@ -51,6 +51,11 @@
       padding:26px 10px; border-radius:16px; min-height:96px;
       border:3px solid #ede7f6; box-shadow:0 2px 6px rgba(0,0,0,.08);
     }
+    .changeCall{
+      background:#00897b; color:#fff; font-size:22px; font-weight:900;
+      padding:26px 10px; border-radius:16px; min-height:96px;
+      border:3px solid #d0f0eb; box-shadow:0 2px 6px rgba(0,0,0,.08);
+    }
     .bar{
       position:fixed; left:0; right:0; bottom:0; z-index:99999;
       background:#fff; border-top:1px solid #ddd; box-shadow:0 -6px 16px rgba(0,0,0,.15);
@@ -295,6 +300,7 @@
   let confirmBusy = false;
   let yen10000Busy = false;
   let ownerCallBusy = false;
+  let changeCallBusy = false;
 
   function resetCounts(){
     counts = {};
@@ -515,6 +521,62 @@
     }
   }
 
+
+  function handleChangeCallClick(){
+    if(changeCallBusy) return;
+
+    changeCallBusy = true;
+    const btn = document.getElementById("changeCallBtn");
+
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = "通知中…";
+    }
+
+    const data = {
+      type: "change_call",
+      ts: Date.now(),
+      device: DEVICE_NAME,
+      page: "ふわふわレジ",
+      message: "両替の呼び出しです",
+      notifyEmail: getNotifyEmail()
+    };
+
+    function done(text){
+      showToast(text);
+      vibrate(30);
+      changeCallBusy = false;
+
+      const b = document.getElementById("changeCallBtn");
+      if(b){
+        b.disabled = false;
+        b.textContent = "💱 両替";
+      }
+    }
+
+    if(navigator.onLine){
+      fetch(GAS_WEBAPP_URL,{
+        method:"POST",
+        headers:{ "Content-Type":"text/plain;charset=utf-8" },
+        body: JSON.stringify(data)
+      }).then(res=>{
+        if(res.ok){
+          done("両替通知を送信しました");
+        }else{
+          enqueueRows([data]);
+          done("送信失敗のため保存しました");
+        }
+      }).catch(()=>{
+        enqueueRows([data]);
+        done("オフライン保存しました");
+      });
+    }else{
+      enqueueRows([data]);
+      done("オフライン保存しました");
+    }
+  }
+
+
   function renderProducts(){
     itemsEl.innerHTML = "";
 
@@ -536,6 +598,14 @@
           <button class="yen10000 hasFlash" id="yen10000Btn">一万円札<span class="pulseFlash"></span></button>
         `;
         itemsEl.appendChild(yen);
+
+        const change = document.createElement("div");
+        change.className = "card";
+        change.innerHTML = `
+          <div class="name">両替</div>
+          <button class="changeCall hasFlash" id="changeCallBtn">💱 両替<span class="pulseFlash"></span></button>
+        `;
+        itemsEl.appendChild(change);
 
         const owner = document.createElement("div");
         owner.className = "card";
@@ -567,6 +637,11 @@
 
     if(b.id === "ownerCallBtn"){
       handleOwnerCallClick();
+      return;
+    }
+
+    if(b.id === "changeCallBtn"){
+      handleChangeCallClick();
       return;
     }
 
